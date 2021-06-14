@@ -1,0 +1,113 @@
+**********
+** Ex.1 **
+**********
+
+ekaterina@ekaterina-VirtualBox:~$ echo -e "[mysql]\nuser=root\npassword=123123" > ~/.my.cnf
+ekaterina@ekaterina-VirtualBox:~$ sudo cat ~/.my.cnf
+[mysql]
+user=root
+password=password
+ekaterina@ekaterina-VirtualBox:~$ sudo chmod 0600 ~/.my.cnf
+ekaterina@ekaterina-VirtualBox:~$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 27
+Server version: 8.0.25-0ubuntu0.21.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> exit
+Bye
+
+**********
+** Ex.2 **
+**********
+
+ekaterina@ekaterina-VirtualBox:~$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 28
+Server version: 8.0.25-0ubuntu0.21.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE example;
+Query OK, 1 row affected (0,01 sec)
+
+mysql> USE example;
+Database changed
+
+mysql> CREATE TABLE IF NOT EXISTS users (id SERIAL, name VARCHAR(255) NOT NULL UNIQUE);
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> exit
+Bye
+
+**********
+** Ex.3 **
+**********
+
+ekaterina@ekaterina-VirtualBox:~$ mysqldump example > example.sql
+ekaterina@ekaterina-VirtualBox:~$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 32
+Server version: 8.0.25-0ubuntu0.21.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE sample;
+Query OK, 1 row affected (0,01 sec)
+
+mysql> exit
+Bye
+ekaterina@ekaterina-VirtualBox:~$ mysql sample < example.sql
+ekaterina@ekaterina-VirtualBox:~$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 34
+Server version: 8.0.25-0ubuntu0.21.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use sample;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++------------------+
+| Tables_in_sample |
++------------------+
+| users            |
++------------------+
+1 row in set (0,00 sec)
+
+mysql> exit
+Bye
+
+**********
+** Ex.4 **
+**********
+
+ekaterina@ekaterina-VirtualBox:~$ mysqldump mysql help_keyword --where='TRUE LIMIT 100' > help_keyword_report.sql
