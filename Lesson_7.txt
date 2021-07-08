@@ -1,0 +1,119 @@
+**********
+** Ex.1 **
+**********
+
+mysql> ALTER TABLE orders
+    -> ADD CONSTRAINT orders_user_id_fk FOREIGN KEY (user_id) REFERENCES users(i
+d) ON DELETE CASCADE;
+Query OK, 0 rows affected (0,05 sec)
+
+mysql> SELECT id, name, birthday_at FROM users;
++----+--------------------+-------------+
+| id | name               | birthday_at |
++----+--------------------+-------------+
+|  1 | Геннадий           | 1990-10-05  |
+|  2 | Наталья            | 1984-11-12  |
+|  3 | Александр          | 1985-05-20  |
+|  4 | Сергей             | 1988-02-14  |
+|  5 | Иван               | 1998-01-12  |
+|  6 | Мария              | 2006-08-29  |
++----+--------------------+-------------+
+6 rows in set (0,00 sec)
+
+mysql> SELECT * FROM orders;
++----+---------+---------------------+---------------------+
+| id | user_id | created_at          | updated_at          |
++----+---------+---------------------+---------------------+
+|  1 |       5 | 2021-07-08 19:56:10 | 2021-07-08 19:56:10 |
+|  2 |       1 | 2021-07-08 19:56:10 | 2021-07-08 19:56:10 |
+|  3 |       2 | 2021-07-08 19:56:10 | 2021-07-08 19:56:10 |
+|  4 |       2 | 2021-07-08 19:56:10 | 2021-07-08 19:56:10 |
+|  5 |       3 | 2021-07-08 19:56:10 | 2021-07-08 19:56:10 |
+|  6 |       1 | 2021-07-08 19:56:10 | 2021-07-08 19:56:10 |
++----+---------+---------------------+---------------------+
+6 rows in set (0,00 sec)
+
+mysql> SELECT users.id, users.name, users.birthday_at FROM users JOIN orders ON users.id = orders.user_id;
++----+--------------------+-------------+
+| id | name               | birthday_at |
++----+--------------------+-------------+
+|  1 | Геннадий           | 1990-10-05  |
+|  1 | Геннадий           | 1990-10-05  |
+|  2 | Наталья            | 1984-11-12  |
+|  2 | Наталья            | 1984-11-12  |
+|  3 | Александр          | 1985-05-20  |
+|  5 | Иван               | 1998-01-12  |
++----+--------------------+-------------+
+6 rows in set (0,00 sec)
+
+**********
+** Ex.2 **
+**********
+
+mysql> SELECT products.id,product.name,products.price,catalogs.name FROM products LEFT JOIN catalogs ON products.catalog_id = catalogs.id;
+
+**********
+** Ex.3 **
+**********
+
+mysql> CREATE DATABASE flights;
+Query OK, 1 row affected (0,01 sec)
+
+mysql> USE flights;
+Database changed
+
+mysql> CREATE TABLE flights (
+    ->   id SERIAL PRIMARY KEY,
+    ->   `from` VARCHAR(255),
+    ->   `to` VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> CREATE TABLE cities (
+    ->   id SERIAL PRIMARY KEY,
+    ->   label VARCHAR(255),
+    ->   name VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> INSERT INTO flights (`from`, `to`) VALUES
+    -> ('moscow', 'ny'),
+    -> ('ny', 'london'),
+    -> ('moscow', 'paris'),
+    -> ('amsterdam', 'baghdad'),
+    -> ('baghdad', 'bangkok')
+    -> ;
+Query OK, 5 rows affected (0,01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO cities (label, name) VALUES
+    -> ('moscow', 'Москва'),
+    -> ('ny', 'НЙ'),
+    -> ('london', 'Лондон'),
+    -> ('paris', 'Париж'),
+    -> ('amsterdam', 'Амстердам'),
+    -> ('baghdad', 'Багдад'),
+    -> ('bangkok', 'Бангкок')
+    -> ;
+Query OK, 7 rows affected (0,01 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> SELECT
+    -> flights.id,
+    -> cities_from.name AS `from`,
+    -> cities_to.name AS `to`
+    -> FROM flights
+    -> JOIN cities AS cities_from
+    -> ON flights.from = cities_from.label
+    -> JOIN cities AS cities_to
+    -> ON flights.to = cities_to.label;
++----+--------------------+----------------+
+| id | from               | to             |
++----+--------------------+----------------+
+|  1 | Москва             | НЙ             |
+|  2 | НЙ                 | Лондон         |
+|  3 | Москва             | Париж          |
+|  4 | Амстердам          | Багдад         |
+|  5 | Багдад             | Бангкок        |
++----+--------------------+----------------+
+5 rows in set (0,00 sec)
