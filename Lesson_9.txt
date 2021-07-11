@@ -1,0 +1,273 @@
+Транзакции, переменные, представления
+
+**********
+** Ex.1 **
+**********
+
+mysql> SELECT * FROM shop.users;
++----+-----------+
+| id | name      |
++----+-----------+
+|  1 | Ekaterina |
+|  2 | Marina    |
+|  3 | Roman     |
++----+-----------+
+3 rows in set (0,00 sec)
+
+mysql> SELECT * FROM sample.users;
++----+-------+
+| id | name  |
++----+-------+
+|  6 | Egor  |
+|  4 | Elene |
+|  5 | Maria |
++----+-------+
+3 rows in set (0,00 sec)
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0,00 sec)
+
+mysql> INSERT INTO sample.users SELECT * FROM shop.users WHERE id = 1;
+Query OK, 1 row affected (0,00 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+mysql> DELETE FROM shop.users WHERE id = 1;
+Query OK, 1 row affected (0,00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0,01 sec)
+
+**********
+** Ex.2 **
+**********
+
+mysql> CREATE OR REPLACE VIEW prod_catalogs AS SELECT products.name AS product, catalogs.name AS catalog
+    -> FROM products
+    -> JOIN catalogs ON products.catalog_id = catalogs.id;
+Query OK, 0 rows affected (0,02 sec)
+
+**********
+** Ex.3 **
+**********
+
+mysql> CREATE TABLE date1 (created_at DATETIME);
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> INSERT INTO date1 VALUES ('2018-08-01'),('2016-08-16'),('2018-08-17');
+Query OK, 4 rows affected (0,00 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM date1 ORDER BY created_at;
++---------------------+
+| created_at          |
++---------------------+
+| 2018-08-01 00:00:00 |
+| 2018-08-16 00:00:00 |
+| 2018-08-17 00:00:00 |
++---------------------+
+4 rows in set (0,00 sec)
+
+mysql> CREATE TEMPORARY TABLE all_month (day INT);
+Query OK, 0 rows affected (0,00 sec)
+
+mysql> INSERT INTO all_month VALUES
+    -> (0), (1), (2), (3), (4), (5), (6), (7), (8), (9), (10), (11), (12), (13), (14), (15), (16), (17), (18), (19), (20), (21), (22), (23), (24), (25), (26), (27), (28), (29), (30);
+Query OK, 31 rows affected (0,01 sec)
+Records: 31  Duplicates: 0  Warnings: 0
+
+mysql> SELECT DATE(DATE('2018-08-31') - INTERVAL all_month.day DAY) AS day, NOT ISNULL(date1.created_at) AS order_exist
+    -> FROM all_month
+    -> LEFT JOIN date1 ON DATE(DATE('2018-08-31') - INTERVAL all_month.day DAY) = date1.created_at
+    -> ORDER BY day;
++------------+-------------+
+| day        | order_exist |
++------------+-------------+
+| 2018-08-01 |           1 |
+| 2018-08-02 |           0 |
+| 2018-08-03 |           0 |
+| 2018-08-04 |           0 |
+| 2018-08-05 |           0 |
+| 2018-08-06 |           0 |
+| 2018-08-07 |           0 |
+| 2018-08-08 |           0 |
+| 2018-08-09 |           0 |
+| 2018-08-10 |           0 |
+| 2018-08-11 |           0 |
+| 2018-08-12 |           0 |
+| 2018-08-13 |           0 |
+| 2018-08-14 |           0 |
+| 2018-08-15 |           0 |
+| 2018-08-16 |           1 |
+| 2018-08-17 |           1 |
+| 2018-08-18 |           0 |
+| 2018-08-19 |           0 |
+| 2018-08-20 |           0 |
+| 2018-08-21 |           0 |
+| 2018-08-22 |           0 |
+| 2018-08-23 |           0 |
+| 2018-08-24 |           0 |
+| 2018-08-25 |           0 |
+| 2018-08-26 |           0 |
+| 2018-08-27 |           0 |
+| 2018-08-28 |           0 |
+| 2018-08-29 |           0 |
+| 2018-08-30 |           0 |
+| 2018-08-31 |           0 |
++------------+-------------+
+31 rows in set (0,00 sec)
+
+**********
+** Ex.4 **
+**********
+
+mysql> INSERT INTO date1 VALUES ('2020-08-01'),('2021-07-04'),('2019-08-16'), ('2021-03-17'), ('2020-05-13'), ('2018-08-04');
+Query OK, 5 rows affected (0,01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM date1 ORDER BY created_at;
++---------------------+
+| created_at          |
++---------------------+
+| 2016-08-04 00:00:00 |
+| 2018-08-01 00:00:00 |
+| 2018-08-16 00:00:00 |
+| 2018-08-17 00:00:00 |
+| 2019-08-16 00:00:00 |
+| 2020-05-13 00:00:00 |
+| 2020-08-01 00:00:00 |
+| 2021-03-17 00:00:00 |
+| 2021-07-04 00:00:00 |
++---------------------+
+9 rows in set (0,00 sec)
+
+
+mysql> DELETE date1 FROM date1
+    -> JOIN (SELECT created_at FROM date1 ORDER BY created_at DESC LIMIT 5, 1) AS new
+    -> ON date1.created_at <= new.created_at;
+Query OK, 4 rows affected (0,01 sec)
+
+mysql> SELECT * FROM date1;
++---------------------+
+| created_at          |
++---------------------+
+| 2020-08-01 00:00:00 |
+| 2021-07-04 00:00:00 |
+| 2019-08-16 00:00:00 |
+| 2021-03-17 00:00:00 |
+| 2020-05-13 00:00:00 |
++---------------------+
+5 rows in set (0,00 sec)
+
+Администрирование MySQL
+
+**********
+** Ex.1 **
+**********
+
+mysql> CREATE USER 'shop_read'@'localhost' IDENTIFIED WITH mysql_native_password BY 'my8sql';
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> GRANT SELECT, SHOW VIEW ON shop.* TO 'shop_read'@'localhost' ;
+Query OK, 0 rows affected (0,01 sec)
+
+mysql> CREATE USER 'shop'@'localhost' IDENTIFIED WITH mysql_native_password BY 'my8sql';
+Query OK, 0 rows affected (0,01 sec)
+
+mysql> GRANT ALL ON shop.* TO 'shop'@'localhost';
+Query OK, 0 rows affected (0,01 sec)
+
+**********
+** Ex.2 **
+**********
+
+mysql> CREATE TABLE accounts (
+    -> id SERIAL PRIMARY KEY,
+    -> name VARCHAR(45),
+    -> password VARCHAR(45)
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> INSERT INTO accounts VALUES
+    -> (1, 'Ekaterina', '123'),
+    -> (2, 'Nina', '1234'),
+    -> (3, 'Rina', '12345');
+Query OK, 3 rows affected (0,00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> CREATE OR REPLACE VIEW username(user_id, user_name) AS SELECT id, name FROM accounts;
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> CREATE USER 'user_read'@'localhost';
+Query OK, 0 rows affected (0,01 sec)
+
+mysql> GRANT SELECT (user_id, user_name) ON shop.username TO 'user_read'@'localhost';
+Query OK, 0 rows affected (0,01 sec)
+
+Хранимые процедуры и функции, триггеры
+
+**********
+** Ex.1 **
+**********
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE hello()
+    -> BEGIN
+    -> CASE
+    -> WHEN CURTIME() BETWEEN '06:00:00' AND '12:00:00' THEN SELECT 'Доброе утро';
+    -> WHEN CURTIME() BETWEEN '12:00:00' AND '18:00:00' THEN SELECT 'Добрый день';
+    -> WHEN CURTIME() BETWEEN '18:00:00' AND '00:00:00' THEN SELECT 'Добрый вечер';
+    -> ELSE SELECT 'Доброй ночи';
+    -> END CASE;
+    -> END//
+Query OK, 0 rows affected (0,00 sec)
+
+mysql> CALL hello()//
++-----------------------+
+| Добрый день           |
++-----------------------+
+| Добрый день           |
++-----------------------+
+1 row in set (0,00 sec)
+
+**********
+** Ex.2 **
+**********
+
+mysql> CREATE TRIGGER new1 BEFORE INSERT ON products FOR EACH ROW BEGIN
+    -> IF NEW.name IS NULL AND NEW.description IS NULL THEN
+    -> SIGNAL SQLSTATE '45000'
+    -> SET MESSAGE_TEXT = 'Both name and description are NULL';
+    -> END IF;
+    -> END//
+Query OK, 0 rows affected (0,00 sec)
+
+mysql> INSERT INTO products (name, description, price, catalog_id) VALUES ('ACER Nitro 5 AN515-43-R25S', 'HDMI, AMD Ryzen 5 3550H', 56000.00, 1)//
+
+mysql> CREATE TRIGGER new2 BEFORE UPDATE ON products FOR EACH ROW BEGIN
+    -> IF NEW.name IS NULL AND NEW.description IS NULL THEN
+    -> SIGNAL SQLSTATE '45000'
+    -> SET MESSAGE_TEXT = 'Both name and description are NULL';
+    -> END IF;
+    -> END//
+
+**********
+** Ex.3 **
+**********
+
+mysql> CREATE FUNCTION FIB(num INT)
+    -> RETURNS INT DETERMINISTIC
+    -> BEGIN
+    ->   DECLARE fs DOUBLE;
+    ->   SET fs = SQRT(5);
+    ->
+    ->   RETURN (POW((1 + fs) / 2.0, num) + POW((1 - fs) / 2.0, num)) / fs;
+    -> END//
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> SELECT FIB(8)//
++--------------+
+| FIBONACCI(8) |
++--------------+
+|           21 |
++--------------+
+1 row in set (0,00 sec)
