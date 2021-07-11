@@ -242,6 +242,7 @@ mysql> CREATE TRIGGER new1 BEFORE INSERT ON products FOR EACH ROW BEGIN
 Query OK, 0 rows affected (0,00 sec)
 
 mysql> INSERT INTO products (name, description, price, catalog_id) VALUES ('ACER Nitro 5 AN515-43-R25S', 'HDMI, AMD Ryzen 5 3550H', 56000.00, 1)//
+Query OK, 0 rows affected (0,01 sec)
 
 mysql> CREATE TRIGGER new2 BEFORE UPDATE ON products FOR EACH ROW BEGIN
     -> IF NEW.name IS NULL AND NEW.description IS NULL THEN
@@ -249,6 +250,7 @@ mysql> CREATE TRIGGER new2 BEFORE UPDATE ON products FOR EACH ROW BEGIN
     -> SET MESSAGE_TEXT = 'Both name and description are NULL';
     -> END IF;
     -> END//
+Query OK, 0 rows affected (0,00 sec)
 
 **********
 ** Ex.3 **
@@ -271,3 +273,5 @@ mysql> SELECT FIB(8)//
 |           21 |
 +--------------+
 1 row in set (0,00 sec)
+
+
