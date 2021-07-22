@@ -1,0 +1,1481 @@
+Суть проекта exhibition - упрощенная модель базы данных выставки. Клиент, желающий принять участие в выставке подает заявку в оргкомитет выставки.
+Заявка на участие включает следующие данные:
+-Название выставки
+-Дата проведения
+-Выставочный оператор
+-Наименование экспонента
+-ИНН
+-Юридический адрес
+-Фактический адрес
+-Телефон
+-Факc
+-Email
+-Банковские реквизиты (р/с, к/с, наименование банка, адрес банка, БИК)
+-Контактное лицо (должность, ФИО, телефон, факс, email)
+-Форма участия (наименование, состав услуг со стороны организатора, стоимость)
+Ответсвенный за прием документов заносит заявку в БД и подтверждение участия.
+
+
+mysql> CREATE DATABASE exhibition;
+Query OK, 1 row affected (0,00 sec)
+
+mysql> USE exhibition;
+Database changed
+
+mysql> CREATE TABLE city (
+    -> id_city BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> city_name VARCHAR(130) NOT NULL COMMENT "наименование города",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> CREATE TABLE event(
+    -> id_event BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> event_name VARCHAR(130) NOT NULL COMMENT "наименование события",
+    -> id_city BIGINT UNSIGNED NOT NULL COMMENT "ссылка на город",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> CREATE TABLE exhibition_operator (
+    -> id_exhibition_operator BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> name VARCHAR(130) NOT NULL COMMENT "имя",
+    -> telephone INT NULL COMMENT "телефон",
+    -> fax INT NULL COMMENT "факс",
+    -> INN VARCHAR(12) NULL COMMENT "ИНН",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> CREATE TABLE stand(
+    -> id_stand BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> num_stand INT NOT NULL COMMENT "номер",
+    -> id_exhibition BIGINT UNSIGNED NOT NULL COMMENT "ссылка на выставку",
+    -> status INT NULL COMMENT "статус",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> CREATE TABLE exhibition(
+    -> id_exhibition BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> id_event BIGINT UNSIGNED NOT NULL COMMENT "ссылка на мероприятие",
+    -> id_exhibition_operator BIGINT UNSIGNED NOT NULL COMMENT "ссылка на оператора",
+    -> exhibition_name VARCHAR(130) NOT NULL COMMENT "наименование",
+    -> date_exhibition DATE NOT NULL COMMENT "дата",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> CREATE TABLE bank(
+    -> id_bank BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> account_number VARCHAR(50) NOT NULL COMMENT "р/с",
+    -> name_bank VARCHAR(50) NOT NULL COMMENT "наименование",
+    -> town_bank VARCHAR(50) NULL COMMENT "адрес",
+    -> BIK VARCHAR(50) NOT NULL COMMENT "БИК",
+    -> correspondent_BA VARCHAR(50) NOT NULL COMMENT "к/с",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,04 sec)
+
+mysql> CREATE TABLE invitation(
+    -> id_invitation BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> id_exhibition BIGINT UNSIGNED NOT NULL COMMENT "ссылка на выставку",
+    -> id_client BIGINT UNSIGNED NOT NULL COMMENT "ссылка на клиента",
+    -> status VARCHAR(50) NULL COMMENT "статус",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,05 sec)
+
+mysql> CREATE TABLE form_of_participation (
+    -> id_fop BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> name_fop VARCHAR(130) NOT NULL COMMENT "форма участия",
+    -> org_service VARCHAR(130) NOT NULL COMMENT "сервис",
+    -> price INT NULL COMMENT "стоимость",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,03 sec)
+
+mysql> CREATE TABLE client(
+    -> id_client BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> id_bank BIGINT UNSIGNED NOT NULL COMMENT "ссылка на банк",
+    -> name_exponent VARCHAR(130) NOT NULL COMMENT "наименование экспонента",
+    -> INN VARCHAR(12) NOT NULL COMMENT "ИНН",
+    -> legal_address VARCHAR(130) NULL COMMENT "юридический адрес",
+    -> mail_address VARCHAR(130) NULL COMMENT "фактический адрес",
+    -> telephone INT NOT NULL COMMENT "телефон",
+    -> fax INT NULL COMMENT "факс",
+    -> surname VARCHAR(130) NOT NULL COMMENT "фамилия",
+    -> name VARCHAR(130) NOT NULL COMMENT "имя",
+    -> middle_name VARCHAR(130) NOT NULL COMMENT "отчество",
+    -> position VARCHAR(130) NULL COMMENT "должность",
+    -> email VARCHAR(130) NOT NULL COMMENT "email",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> CREATE TABLE registration(
+    -> id_registration BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "идентификатор строки",
+    -> id_client BIGINT UNSIGNED NOT NULL COMMENT "ссылка на клиента",
+    -> id_exhibition BIGINT UNSIGNED NOT NULL COMMENT "ссылка на выставку",
+    -> id_fop BIGINT UNSIGNED NOT NULL COMMENT "ссылка на форму участия",
+    -> status VARCHAR(150) NULL COMMENT "статус",
+    -> date_registration DATE NOT NULL COMMENT "дата",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания строки"
+    -> );
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> CREATE TABLE agreement(
+    -> id_agreement BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT      "идентификатор строки",
+    -> id_registration BIGINT UNSIGNED NOT NULL COMMENT "ссылка на регистрацию",
+    -> id_stand BIGINT UNSIGNED NOT NULL COMMENT "ссылка на стенд",
+    -> num_agreement VARCHAR(130) NOT NULL COMMENT "номер",
+    -> appinfo VARCHAR(130) NULL COMMENT "информация",
+    -> appstand VARCHAR(130) NULL COMMENT "информация о стенде",
+    -> mail VARCHAR(130) NULL COMMENT "почта",
+    -> date DATE NOT NULL COMMENT "дата",
+    -> price NCHAR(10) NULL COMMENT "стоимость",
+    -> created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "время создания стр     оки"
+    -> );
+Query OK, 0 rows affected, 1 warning (0,03 sec)
+
+mysql> SHOW TABLES;
++-----------------------+
+| Tables_in_exhibition  |
++-----------------------+
+| agreement             |
+| bank                  |
+| city                  |
+| client                |
+| event                 |
+| exhibition            |
+| exhibition_operator   |
+| form_of_participation |
+| invitation            |
+| registration          |
+| stand                 |
++-----------------------+
+11 rows in set (0,01 sec)
+
+mysql> ALTER TABLE event ADD CONSTRAINT event_id_city_fk FOREIGN KEY (id_city) REFERENCES city(id_city);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE exhibition ADD CONSTRAINT exhibition_id_event_fk FOREIGN KEY (id_event) REFERENCES event(id_event);
+Query OK, 0 rows affected (0,04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE exhibition ADD CONSTRAINT exhibition_id_exhibition_operator_fk FOR
+EIGN KEY (id_exhibition_operator) REFERENCES exhibition_operator(id_exhibition_operator);
+Query OK, 0 rows affected (0,05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE stand ADD CONSTRAINT stand_id_exhibition_fk FOREIGN KEY (id_exhibition) REFERENCES exhibition(id_exhibition);
+Query OK, 0 rows affected (0,04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE client ADD CONSTRAINT client_id_bank_fk FOREIGN KEY (id_bank) REFERENCES bank(id_bank);
+Query OK, 0 rows affected (0,04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE invitation ADD CONSTRAINT invitation_id_client_fk FOREIGN KEY (id_
+client) REFERENCES client(id_client);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE invitation ADD CONSTRAINT invitation_id_exhibition_fk FOREIGN KEY
+(id_exhibition) REFERENCES exhibition(id_exhibition);
+Query OK, 0 rows affected (0,05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE registration ADD CONSTRAINT registration_id_exhibition_fk FOREIGN
+KEY (id_exhibition) REFERENCES exhibition(id_exhibition);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE registration ADD CONSTRAINT registration_id_client_fk FOREIGN KEY
+(id_client) REFERENCES client(id_client);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE registration ADD CONSTRAINT registration_id_fop_fk FOREIGN KEY (id_fop) REFERENCES form_of_participation(id_fop);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE agreement ADD CONSTRAINT agreement_id_registration_fk FOREIGN KEY
+(id_registration) REFERENCES registration(id_registration);
+Query OK, 0 rows affected (0,05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE agreement ADD CONSTRAINT agreement_id_stand_fk FOREIGN KEY (id_stand) REFERENCES stand(id_stand);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('1', '1232345670085', 'et', 'repellat', '3897', 'Accusantium deleniti ipsa dolorem nesciunt ea. Nos', '2021-05-01 09:00:32');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('2', '35673567', 'repudiandae', 'eum', '84077349', 'Enim sint rerum voluptates impedit ut. Est quo qui', '2017-02-09 19:01:19');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('3', '5756', 'sed', 'consequatur', '289', 'Vero odio quam asperiores. Qui ratione aliquid cum', '2020-09-21 04:58:41');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('4', '993233602', 'sit', 'a', '20', 'Placeat cupiditate id modi non eius voluptatem. Il', '1988-02-12 07:02:00');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('5', '74326', 'explicabo', 'repudiandae', '87772451', 'Rem sed eos aspernatur cupiditate quo. Non quas ut', '1986-07-25 15:13:57');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('6', '115256245', 'molestiae', 'aut', '795', 'Omnis asperiores laudantium quod delectus modi. La', '1977-04-27 17:29:34');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('7', '785627', 'impedit', 'ad', '744014764', 'Et qui iure dolore praesentium. Dignissimos iure o', '1999-06-09 16:47:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('8', '576927276', 'quas', 'in', '1728960', 'Delectus ullam vitae eveniet. Aliquam minus numqua', '1999-10-21 19:49:06');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('9', '2058133', 'voluptas', 'consequuntur', '473', 'Sequi praesentium numquam et dolore. Ad omnis sit ', '2003-03-28 18:26:16');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('10', '15682007', 'aut', 'perferendis', '19401007', 'Natus sed tempore provident impedit in. Iste volup', '1972-11-28 07:45:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('11', '706582', 'facilis', 'commodi', '12', 'Hic hic modi doloribus aut. Labore qui illo odio m', '1980-10-17 16:02:05');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('12', '724740119', 'est', 'quibusdam', '2461', 'Eum dolores quos quibusdam consequatur quia est. E', '2002-10-29 07:12:44');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('13', '67344', 'fugit', 'cupiditate', '4060', 'Aut tempore molestiae necessitatibus placeat. Corp', '1972-08-29 15:50:09');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('14', '71155603', 'minima', 'voluptas', '1527066', 'Vel at qui aspernatur laborum. Sed exercitationem ', '1981-07-25 09:58:58');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('15', '5744', 'dicta', 'eligendi', '416', 'Doloribus porro corrupti rerum beatae quod alias. ', '2004-04-23 03:07:55');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('16', '982562', 'porro', 'omnis', '8', 'Ab quia maiores et voluptate eaque quam incidunt. ', '1976-10-11 00:22:37');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('17', '3295', 'sunt', 'voluptates', '82', 'A sapiente quasi placeat. Architecto perspiciatis ', '1995-05-30 16:43:09');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('18', '925625', 'voluptatum', 'quis', '2', 'Eos est ipsam dolor illum distinctio tempora ut. C', '2002-12-12 04:33:07');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('19', '608054907', 'repellat', 'et', '42', 'Maxime autem ut velit voluptatibus. Dolorem et del', '2011-01-14 17:55:42');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `bank` (`id_bank`, `account_number`, `name_bank`, `town_bank`, `BIK`, `correspondent_BA`, `created_at`) VALUES ('20', '95736', 'non', 'consequatur', '25478', 'Eos architecto rem sapiente et numquam saepe. Hic ', '2010-07-27 11:07:43');
+Query OK, 1 row affected (0,02 sec)
+
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('1', 'Lake Karolannberg', '1985-08-09 03:43:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('2', 'Lake Toney', '1980-08-21 12:28:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('3', 'Issacstad', '2003-08-21 00:59:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('4', 'North Francescamouth', '2019-03-25 22:55:11');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('5', 'Morissettehaven', '1992-06-20 11:30:25');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('6', 'East Geovany', '1973-11-04 08:04:42');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('7', 'West Julio', '1993-06-21 01:30:12');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('8', 'Bechtelarville', '1997-06-13 12:42:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('9', 'Lake Amaya', '2009-06-03 14:11:44');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('10', 'New Bessie', '2013-06-12 18:27:48');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('11', 'Jakubowskimouth', '2017-11-20 04:43:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('12', 'Lake Mary', '2014-01-26 05:17:21');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('13', 'Gretchenberg', '2006-08-28 14:20:57');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('14', 'Mariamville', '2011-06-07 23:44:33');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('15', 'Port Davin', '2021-03-29 12:49:10');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('16', 'Meaganchester', '1985-02-27 19:35:23');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('17', 'West Hiltonview', '1987-11-09 00:03:51');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('18', 'Naomiland', '1986-08-16 02:00:59');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('19', 'Kingmouth', '2015-06-06 07:56:24');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `city` (`id_city`, `city_name`, `created_at`) VALUES ('20', 'New Micahhaven', '1994-02-06 03:53:08');
+Query OK, 1 row affected (0,01 sec)
+
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('1', '1', 'minus', '58559528', '341 Mustafa Throughway\nNoelfort, VT 93635-7932', '021 Danyka Street\nHauckborough, TX 81732-4528', 1, 193478, 'at', 'repellat', 'sed', NULL, 'kaley.lakin@example.net', '1981-08-18 08:23:59');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('2', '1', 'quia', '66625400', '639 Lang Trafficway Suite 465\nSouth Claudfort, ID 65501', '15668 Brekke Junction Suite 347\nJohnsonburgh, NH 79009-9723', 1, 1, 'rerum', 'eligendi', 'est', NULL, 'verona94@example.org', '2005-04-29 16:35:35');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('3', '4', 'autem', '1742', '873 Cummings Radial Apt. 238\nOswaldberg, OH 60031-2926', '171 Nikolaus Divide Suite 686\nHowellburgh, CA 05423', 609, 5, 'voluptas', 'nemo', 'laboriosam', NULL, 'ahintz@example.net', '1998-02-16 16:36:45');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('4', '7', 'fugiat', '45', '9601 Cyrus Square Apt. 307\nSouth Damianshire, HI 61607', '32073 Stefanie Dam Suite 598\nNew Kayley, GA 09393-8897', 1, 0, 'cum', 'sed', 'vel', NULL, 'keagan40@example.net', '2014-07-25 23:02:26');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('5', '4', 'qui', '3', '9361 Lonzo Prairie\nAlfonsoville, AZ 08694-4282', '517 Estrella Manors\nSchoenbury, KY 50981', 1, 0, 'porro', 'nam', 'et', NULL, 'larson.wilton@example.com', '2015-12-16 00:30:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('6', '7', 'minus', '894824', '41498 Ritchie Prairie\nShawnmouth, AK 82322-4661', '102 Danielle Tunnel\nDevenchester, NV 60325', 609, 0, 'ut', 'et', 'mollitia', NULL, 'dakota75@example.org', '2001-04-25 17:19:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('7', '7', 'nam', '482', '00784 Ruecker Village Apt. 820\nNew Ramona, NH 51584-2618', '812 Payton Viaduct\nNew Lorineview, KS 84494-3235', 617, 0, 'aspernatur', 'molestiae', 'a', NULL, 'hardy74@example.org', '1975-08-20 20:17:49');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('8', '6', 'omnis', '2', '34837 Goyette Extensions Apt. 579\nSouth Rocio, MS 32396-3850', '06283 Koelpin Forks Apt. 511\nSouth Marianeview, IN 87000-7840', 496309, 2147483647, 'repudiandae', 'at', 'nihil', NULL, 'adelbert82@example.net', '2016-06-27 06:48:44');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('9', '5', 'dolore', '7', '51758 Mosciski Trace\nSvenfort, NM 82502', '233 Kattie Rapids Suite 093\nLake Hillardberg, MN 66224-4394', 35, 361, 'sequi', 'qui', 'qui', NULL, 'dickens.amelie@example.com', '1972-05-20 08:31:19');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('10', '8', 'veniam', '1', '284 Lynch Mountain\nEberttown, WV 18965', '461 Amie Square Apt. 459\nLake Lavina, AZ 35144-6111', 700, 6, 'quia', 'nulla', 'harum', NULL, 'lester29@example.net', '2011-06-25 10:57:29');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('11', '1', 'rerum', '', '640 Augustine Haven Suite 794\nNorth Greyson, DE 47310', '8683 Kohler Flat\nMarlenview, NV 94486', 1, 2147483647, 'assumenda', 'suscipit', 'sequi', NULL, 'kub.shanie@example.com', '1977-01-03 01:33:50');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('12', '1', 'molestiae', '92025948', '301 Rasheed Heights\nPort Mabelleborough, NH 47548-2936', '54674 Nicolas Corner Suite 648\nSouth Augustusstad, TN 53940', 376, 1, 'necessitatibus', 'expedita', 'quis', NULL, 'golda.senger@example.com', '2000-02-29 00:33:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('13', '2', 'debitis', '8', '893 Antonia Rapids\nSherwoodville, IL 30696', '879 Lou Junction Apt. 623\nNew Torreyland, AK 94433-7997', 501, 296242, 'alias', 'voluptate', 'corrupti', NULL, 'benedict80@example.net', '1979-02-14 05:53:09');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('14', '6', 'ullam', '42427', '1235 Zachariah Stream Apt. 957\nNorth Weston, TX 09618', '679 Trisha Heights Apt. 118\nEast Karleeside, OK 26091', 133743, 2147483647, 'iure', 'saepe', 'molestias', NULL, 'karen.considine@example.com', '1988-09-17 23:52:28');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('15', '3', 'non', '607181126', '93691 Grant Mission\nMcDermottside, MO 52381-8067', '760 Clay Glens Suite 466\nMedhurststad, WY 88548-0347', 418129, 2147483647, 'aut', 'magni', 'voluptatem', NULL, 'fbreitenberg@example.com', '2017-03-07 23:00:39');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('16', '7', 'id', '147130491', '108 Clotilde Orchard Apt. 056\nHermanside, PA 24723-7037', '38514 Stamm Prairie Suite 750\nLake Deannahaven, MA 62182', 286, 213, 'saepe', 'qui', 'est', NULL, 'bettye52@example.org', '2011-04-07 00:39:38');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('17', '1', 'ex', '246739306', '022 Maxine Streets\nNorth Shaina, ME 77490', '8931 Tracy Ridges Apt. 259\nConsidinefurt, CO 83506-2241', 320, 81, 'reprehenderit', 'aut', 'libero', NULL, 'rosemarie.dare@example.com', '2002-10-31 20:55:52');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('18', '7', 'ex', '233547', '304 Blaze Creek Suite 389\nSouth Houston, NY 94036-4581', '36745 Nelda Drive Apt. 120\nUrielville, SD 30679-0413', 1, 1, 'est', 'commodi', 'autem', NULL, 'ashlee.prosacco@example.net', '1985-05-06 21:53:20');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('19', '7', 'quasi', '5407', '2427 Vance Islands Suite 361\nLake Adell, KS 43245', '7881 Hane Road Suite 791\nLake Ozellachester, MI 51788-3706', 1, 547, 'dolores', 'est', 'voluptatibus', NULL, 'johathan29@example.org', '2005-10-13 07:56:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('20', '6', 'rerum', '92', '5516 Margarete Crossing Suite 861\nPort Mavis, WI 96603', '579 Ruecker Cliff Suite 570\nColebury, CT 04314', 662273, 1, 'exercitationem', 'ut', 'mollitia', NULL, 'noah.pouros@example.com', '1983-07-17 17:05:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('21', '9', 'reiciendis', '461370', '42950 Hansen Crossroad\nNorth Dorothea, MS 00067-8859', '3860 Melyna Lock\nSchmittside, MN 59434', 14, 0, 'error', 'autem', 'esse', NULL, 'mariam58@example.org', '2007-12-03 02:16:45');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('22', '5', 'tempora', '600', '2353 Jay Bypass\nPort Evelyn, NH 53178-3879', '38310 Will Glens Apt. 379\nNorth Genesisland, OH 58866', 1, 0, 'odit', 'asperiores', 'amet', NULL, 'vveum@example.com', '2000-03-17 00:25:20');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('23', '7', 'quidem', '867186', '531 Fritsch Keys Apt. 622\nSybleton, NV 72158', '71376 Weissnat Springs\nBodeview, VA 34992', 0, 0, 'labore', 'porro', 'qui', NULL, 'judy86@example.net', '2011-04-25 08:33:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('24', '6', 'officia', '4769777', '8797 Ashly Inlet Suite 895\nPort Christelle, IN 87102-2099', '32508 Alyson Ridges\nHershelshire, KY 73167', 1, 382681, 'ut', 'voluptatum', 'praesentium', NULL, 'eparker@example.com', '1998-07-15 16:14:45');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('25', '9', 'voluptatem', '4', '9191 Barton Spurs\nStephanieport, AR 90863-4758', '7004 Antonietta Lakes Apt. 695\nEast Deondre, VA 28498-2594', 0, 389451, 'esse', 'sed', 'consequatur', NULL, 'block.edythe@example.net', '1984-05-27 02:00:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('26', '7', 'enim', '3644', '151 Sanford Lodge\nNew Daphnechester, ME 75825', '3824 Thurman Orchard Apt. 466\nNorth Abagail, CO 55388', 1, 2147483647, 'fuga', 'magni', 'et', NULL, 'clarissa97@example.net', '1985-09-19 11:32:53');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('27', '8', 'iusto', '8388', '73150 Geraldine Shore Apt. 799\nEllisberg, HI 73688', '1488 Harris Isle\nJakobmouth, WY 74235', 1, 77, 'culpa', 'aut', 'vero', NULL, 'aric43@example.net', '1983-10-31 16:33:08');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('28', '9', 'facilis', '647', '5328 Morissette Street Apt. 720\nBirdiefort, TX 04667-8455', '9922 Elna Road Suite 672\nOcietown, MN 86218', 17, 843381, 'excepturi', 'qui', 'fuga', NULL, 'friesen.magdalen@example.org', '2017-02-17 09:58:36');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('29', '9', 'dolores', '497115370', '4941 Schmeler Motorway\nBurniceville, PA 59530', '2985 Lessie Ways\nKshlerinfort, DE 80085-2062', 62, 0, 'provident', 'est', 'voluptates', NULL, 'mclaughlin.burley@example.com', '2008-12-19 03:05:08');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('30', '7', 'eveniet', '46', '032 Fisher Lodge Suite 179\nWest Krisborough, MT 04164', '2071 DuBuque Burgs\nPacochaland, MT 88633', 2147483647, 0, 'placeat', 'beatae', 'nostrum', NULL, 'herman90@example.org', '2002-08-06 14:55:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('31', '4', 'et', '701681', '810 Drew Causeway Suite 808\nHuelsview, WY 14353-4015', '575 Abbott Via\nBuckridgefort, MN 85569', 1, 954, 'illum', 'maxime', 'et', NULL, 'eschmidt@example.org', '2014-06-26 19:19:02');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('32', '2', 'deserunt', '8965', '5183 Erwin Plaza\nRyanhaven, CA 52985-6269', '117 Simonis Curve\nCedrickchester, OK 67561-3993', 276, 1, 'rerum', 'nisi', 'debitis', NULL, 'ipaucek@example.net', '2010-05-31 21:42:59');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('33', '6', 'est', '311431438', '6157 Reinhold Vista Suite 938\nGretchenhaven, AK 12794-1101', '686 Ronaldo Trail Suite 955\nNorth Cecelia, NC 87291-4765', 187, 356, 'adipisci', 'laudantium', 'quam', NULL, 'kovacek.chyna@example.org', '2015-01-12 23:16:29');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('34', '8', 'harum', '8582487', '9309 Cruickshank Crossing\nNew Bianka, HI 16922-6491', '482 Kihn Manor\nLeifmouth, OR 50913-8737', 903, 553053548, 'voluptas', 'sunt', 'praesentium', NULL, 'dharris@example.com', '2007-05-04 15:19:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('35', '8', 'quia', '110810', '71404 Ubaldo Spur\nEast Donavon, KY 59749', '24018 Rogahn Wall Apt. 510\nRoyalshire, NV 92833-8590', 60, 46, 'placeat', 'nihil', 'ducimus', NULL, 'sstrosin@example.com', '2012-05-05 09:13:08');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('36', '2', 'nesciunt', '639954661', '5596 Alena Neck\nWisozkport, NV 08175', '2408 Kutch Street Suite 963\nNorth Thelmaview, CO 14557', 1, 1, 'quisquam', 'quia', 'sapiente', NULL, 'price.derek@example.org', '1988-12-10 21:32:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('37', '5', 'ipsam', '97264', '76316 Ebba Radial\nNehaview, MI 03157', '10339 Bahringer Dale Apt. 526\nAlyciaton, CA 72137', 0, 537, 'sit', 'cumque', 'in', NULL, 'eorn@example.net', '2015-02-14 20:35:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('38', '4', 'magni', '600450', '8543 Bauch Landing Suite 618\nNicolettetown, MI 63573', '4829 Alfonso View\nArmstrongfort, AR 98201-7760', 35, 735803, 'consequatur', 'vitae', 'facilis', NULL, 'ostrosin@example.com', '2013-02-23 16:34:04');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('39', '5', 'explicabo', '5177287', '4369 Kenna Lights\nHudsonview, NY 14331', '1231 Lindgren Avenue\nAiyanafurt, ID 07114', 1, 0, 'velit', 'repellat', 'at', NULL, 'pearline.sporer@example.com', '1992-07-05 03:34:00');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('40', '1', 'perferendis', '82413', '845 Guadalupe Canyon Suite 136\nAshtynburgh, KY 63268-5810', '5664 Patience Mall\nLake Clint, ND 82164', 855864, 516916, 'qui', 'voluptas', 'vel', NULL, 'zoie80@example.com', '1996-04-15 07:15:19');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('41', '4', 'rem', '53999', '4236 Riley Branch\nKaitlynton, AZ 19574-1778', '682 Clifford Hill Suite 368\nEast Carson, KY 50592-5021', 1, 852516, 'illo', 'occaecati', 'consequatur', NULL, 'icronin@example.org', '1994-02-11 20:09:43');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('42', '1', 'vitae', '1167', '5716 Piper Light Apt. 265\nNew Jameson, SC 40021', '580 Huels Gardens Apt. 738\nNew Brookemouth, HI 62874', 0, 909588, 'laudantium', 'rem', 'tempora', NULL, 'francisca66@example.org', '1992-06-04 07:49:28');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('43', '9', 'quis', '293', '3041 Parisian Junctions\nKiehnchester, RI 61842-0346', '101 O\'Kon Cape Suite 468\nWest Christy, NJ 49600', 2147483647, 0, 'suscipit', 'quae', 'sunt', NULL, 'yjakubowski@example.com', '1992-02-14 02:10:26');
+Query OK, 1 row affected (0,51 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('44', '2', 'tempora', '923333', '7728 Cassandre Lake Suite 832\nLake Nathaniel, OH 35053-3750', '689 Abbey Mews Apt. 283\nPort Carolyn, WV 59260', 2147483647, 423678, 'qui', 'cumque', 'ea', NULL, 'koch.anya@example.com', '1970-07-29 18:41:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('45', '5', 'molestiae', '687044954', '63974 Dimitri Forge Suite 449\nNew Eliashaven, CO 96463', '04571 Bogisich Station Suite 486\nNorth Elva, KS 67045-5347', 0, 656, 'ea', 'rerum', 'id', NULL, 'delores51@example.org', '2009-08-03 00:41:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('46', '3', 'temporibus', '70295165', '505 Rosalee Estate Apt. 565\nPort Charlotte, RI 46494-8182', '3411 Kevon Plaza Apt. 598\nMarvinmouth, CO 80488', 1, 546509, 'non', 'qui', 'omnis', NULL, 'victoria.white@example.net', '1977-12-22 07:00:18');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('47', '1', 'quae', '95', '1187 Senger Flats Suite 729\nPort London, CO 42965', '704 Sigrid Falls\nWest Elbert, GA 65863-1704', 0, 503176, 'et', 'ratione', 'odit', NULL, 'moshe.monahan@example.net', '1995-10-15 22:08:19');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('48', '5', 'non', '736275864', '3845 Arlo Pines\nEast Kaiamouth, WI 99633-5289', '025 Lilly Turnpike Apt. 449\nSalmaburgh, WV 66404', 0, 0, 'sunt', 'culpa', 'porro', NULL, 'konopelski.maurice@example.com', '2016-05-02 23:22:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('49', '7', 'odit', '9863645', '053 Lindsey Locks Suite 515\nNorth Jevonburgh, MI 29800', '646 Anna Harbor Suite 337\nSteuberview, NE 95484', 408, 0, 'officia', 'architecto', 'fuga', NULL, 'mayer.keara@example.com', '1976-08-16 00:45:57');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('50', '8', 'animi', '695', '0998 Destinee Parkways\nLake Adrian, ME 85891-0904', '5834 Kertzmann Points\nNorth Janis, NE 60076-9314', 2147483647, 544477, 'consequatur', 'eligendi', 'voluptas', NULL, 'fschuppe@example.net', '2007-11-12 01:52:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('51', '4', 'pariatur', '82', '6576 Flatley Ports Suite 072\nPrinceborough, UT 98187', '8382 Florencio Vista Suite 804\nEast Jayne, LA 22110', 1, 555, 'rem', 'quis', 'delectus', NULL, 'josiah.von@example.com', '1974-02-26 22:38:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('52', '4', 'vitae', '6324', '4540 Kelsi Cove Apt. 283\nAutumnbury, NJ 86493-3080', '22973 Considine Freeway Suite 597\nLake Luther, MD 94332', 68372, 1, 'error', 'aut', 'placeat', NULL, 'catharine.murazik@example.com', '1987-04-10 08:37:25');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('53', '3', 'voluptates', '430276579', '915 Terrell Fork\nJerrybury, WA 37619', '9119 Stokes Crossing\nPort Frances, TN 76671-5494', 1, 75, 'odit', 'aut', 'deserunt', NULL, 'ufeeney@example.com', '2021-07-15 16:26:35');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('54', '3', 'suscipit', '9643884', '8218 Gleichner Freeway Suite 523\nPort Dinafurt, SD 53406-9692', '7608 Ulices Light\nRoobview, ND 04574', 72, 347163, 'ad', 'aut', 'et', NULL, 'hzieme@example.net', '1978-06-06 13:12:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('55', '9', 'quidem', '456621', '110 Madison Street\nPamelaside, OH 51829', '158 Eliza Crossing Apt. 629\nWest Clotilde, SD 76925-2751', 501172, 10, 'tempora', 'veniam', 'itaque', NULL, 'gulgowski.beth@example.com', '1993-09-07 04:10:35');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('56', '1', 'eius', '157234625', '33582 Mason Circles Suite 422\nPaucekton, WI 82930-4094', '417 Luettgen Point\nNorth Eleonore, TN 45442', 0, 1, 'pariatur', 'excepturi', 'voluptas', NULL, 'ykoelpin@example.org', '1988-10-18 11:47:22');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('57', '1', 'amet', '839', '81012 Shanelle Causeway Suite 670\nAlethaland, OH 09189', '09428 Clint Cliff Apt. 234\nWest Vernicetown, GA 60443-8674', 2147483647, 608, 'blanditiis', 'in', 'et', NULL, 'lazaro.koelpin@example.org', '1981-08-13 14:55:29');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('58', '3', 'ab', '635056', '77534 Rohan Trafficway Suite 443\nSouth Janfurt, NC 84202-4260', '520 Dina Inlet\nBlockborough, NY 97301-1129', 618, 2147483647, 'facere', 'dignissimos', 'expedita', NULL, 'alba.mitchell@example.net', '1996-12-04 05:54:31');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('59', '3', 'et', '38', '8898 Joana Fork Apt. 146\nYadirafort, KS 32538-4359', '0015 Kevin Course\nHarveyfurt, RI 33719-5224', 0, 1142517761, 'consequuntur', 'quia', 'praesentium', NULL, 'lynch.eino@example.com', '1975-11-19 17:27:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('60', '6', 'modi', '61', '429 Marcia Haven\nRockyland, CT 33529', '6814 Annetta Points Suite 765\nDonshire, AZ 53911-8582', 0, 2147483647, 'nisi', 'repellendus', 'exercitationem', NULL, 'lockman.dustin@example.net', '2014-09-21 17:20:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('61', '9', 'perspiciatis', '84', '8112 Bins Path Suite 605\nDiegoside, AK 26483-1269', '8113 Tobin Fall\nLake Francesca, LA 21215-7742', 2147483647, 66, 'dolor', 'autem', 'culpa', NULL, 'marc.bashirian@example.net', '1998-02-04 04:32:57');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('62', '5', 'alias', '45947827', '35604 Bruen Hills Apt. 975\nSouth Jarred, MI 67549-2475', '90770 Jarrett Orchard\nJerodland, NE 27095', 0, 1, 'et', 'optio', 'nisi', NULL, 'lolita.schowalter@example.com', '1995-01-23 08:21:15');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('63', '9', 'asperiores', '244931', '415 Dannie Stravenue\nLake Norenemouth, MI 35011-9720', '37057 Regan Crest Suite 983\nLake Keshawnfort, CT 92079-4657', 368653, 161, 'animi', 'sit', 'ut', NULL, 'nicholaus.pollich@example.com', '1995-06-25 02:22:02');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('64', '2', 'est', '6850668', '1367 Brooke Mews Apt. 007\nPort Oral, NH 12729-5327', '6312 Rosalyn Parkway Apt. 662\nSouth Venafort, DC 20547-0635', 1, 0, 'voluptatem', 'occaecati', 'voluptate', NULL, 'marcel36@example.net', '1997-05-07 11:01:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('65', '6', 'voluptatem', '9722905', '08116 Tromp Prairie\nNew Breanne, OH 27051-6592', '660 Carolyne Ramp\nNew Rosalynview, SD 80170', 1, 13, 'sed', 'ab', 'beatae', NULL, 'tianna.kuvalis@example.org', '1996-09-01 03:59:07');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('66', '9', 'et', '94899', '132 Rudolph Prairie Apt. 490\nGulgowskishire, CO 63417', '00895 Toni Locks Suite 460\nLake Austyn, OH 47859', 0, 1, 'impedit', 'pariatur', 'inventore', NULL, 'dayana92@example.com', '1991-02-14 17:04:53');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('67', '2', 'et', '155', '779 Gusikowski Court Apt. 903\nTillmanville, IN 17459', '4502 Chesley Freeway\nDevynmouth, MN 52117', 90863, 0, 'placeat', 'ad', 'voluptatum', NULL, 'slarkin@example.net', '2012-04-30 07:12:16');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('68', '4', 'magni', '5549457', '8571 Shayna Pike Suite 896\nNorth Clementine, NC 13967', '98292 Zieme Valley\nVeumport, MT 42695', 0, 1, 'maiores', 'temporibus', 'corrupti', NULL, 'romaine.christiansen@example.net', '1984-09-30 21:39:03');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('69', '2', 'explicabo', '9279', '40079 Hand Meadows\nCorkerychester, TX 41503', '058 Jamel Street Apt. 901\nEloyborough, RI 13127-4337', 1, 154829, 'inventore', 'et', 'totam', NULL, 'ffeest@example.net', '2016-04-08 00:43:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('70', '3', 'qui', '70', '2227 Robel Cape Apt. 634\nDennishaven, HI 36856-9181', '8349 Willms Well Suite 235\nEast Evangelineton, MN 79059-6255', 247, 559, 'quisquam', 'ut', 'et', NULL, 'bosco.bertrand@example.org', '1989-10-30 06:24:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('71', '5', 'sit', '17061051', '4839 Antwan Extension Suite 009\nSouth Sallyfort, FL 41635-0618', '26746 Janae Plain Suite 726\nNorth Scarlett, MT 04100-5446', 0, 918, 'nam', 'voluptas', 'sunt', NULL, 'monserrate82@example.com', '1984-10-01 08:02:37');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('72', '2', 'aliquid', '26', '147 Konopelski Brooks\nRunolfssonport, OR 39931-5439', '217 Jayce Station\nWillardport, WA 84896-9598', 536, 1, 'sit', 'sunt', 'aut', NULL, 'leuschke.ward@example.com', '2010-09-05 09:04:51');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('73', '2', 'distinctio', '96613', '7260 Pagac Locks\nRashadchester, MS 94331', '876 Bayer Glens\nCrystelville, IN 32065', 923037, 0, 'fugiat', 'doloremque', 'nam', NULL, 'hattie.gislason@example.org', '1982-04-01 18:38:02');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('74', '7', 'ea', '483492', '139 Corbin Branch\nWest Darianchester, MT 75896', '0379 Adolphus Bridge Suite 207\nKellytown, CO 19279', 439326, 348984, 'alias', 'illo', 'illum', NULL, 'wintheiser.dorcas@example.com', '1985-02-01 14:03:20');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('75', '7', 'fuga', '61750021', '1937 Freeda Island\nEast Rusty, NC 72679', '740 Florine Ferry Suite 868\nRonnyport, IA 52602', 2147483647, 1, 'minima', 'est', 'ipsa', NULL, 'lcassin@example.org', '1985-01-22 22:02:37');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('76', '3', 'autem', '8629085', '1840 Randall Hollow\nNorth Martinfurt, CT 69202', '1809 O\'Hara Lodge Suite 231\nFordhaven, NM 61309-2707', 0, 246348, 'eveniet', 'ipsam', 'quidem', NULL, 'ruthe22@example.net', '1996-02-23 09:06:37');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('77', '4', 'magnam', '90', '262 Lorine Pike Apt. 566\nNew Marshall, WV 17467', '981 Spencer Keys Apt. 394\nNorth Lucious, KS 53723-6944', 0, 6, 'est', 'unde', 'deleniti', NULL, 'beatrice.grady@example.org', '1996-04-25 19:54:35');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('78', '4', 'numquam', '33651648', '564 Bernhard Haven Apt. 832\nLittelfurt, NJ 25687-0828', '8246 Kolby Trail\nNorth Taniaside, KY 62829-0863', 1, 1, 'dolor', 'quaerat', 'dicta', NULL, 'kiehn.casandra@example.com', '1988-12-03 04:00:59');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('79', '3', 'adipisci', '13023', '0690 Cronin Lock\nRobynhaven, MN 05077', '716 Ellie Hollow Suite 591\nShaniyamouth, ID 26454-5241', 52, 1, 'ullam', 'odit', 'saepe', NULL, 'zachary18@example.com', '2009-04-05 13:31:30');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('80', '4', 'asperiores', '315959', '9319 Erich Radial Apt. 805\nGislasonborough, IL 17080', '257 Casimir Mission\nCalistaville, AK 35673', 481602, 589, 'ullam', 'illo', 'officiis', NULL, 'wkrajcik@example.net', '1978-11-11 13:06:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('81', '8', 'vel', '80523680', '18586 Lubowitz Mills Apt. 456\nNorth Johnathonchester, TX 82774', '2442 Heaney Inlet Apt. 833\nDevanfurt, WI 84858-0799', 2147483647, 850654, 'sit', 'autem', 'velit', NULL, 'dewitt.zieme@example.org', '2016-04-15 18:43:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('82', '8', 'in', '81', '26472 Neoma Street Suite 373\nLake Saige, NY 27868', '8210 Keeling Shoal Suite 957\nSchneidertown, WA 21664-2772', 0, 133, 'similique', 'rerum', 'eos', NULL, 'evangeline.grimes@example.com', '1999-04-30 21:45:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('83', '2', 'quia', '9275728', '480 Romaguera Unions Suite 618\nJordynshire, CT 85008-4030', '51478 Aufderhar Forge Apt. 567\nNorth Tyrique, TN 24107-0307', 419, 532, 'aut', 'quia', 'repudiandae', NULL, 'meghan.wiegand@example.com', '2002-05-31 20:36:24');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('84', '1', 'fugit', '2425545', '960 Morar Fords Suite 532\nHowellton, VT 24434', '198 Wilderman Burgs\nNew Emmalee, ND 38437', 186, 890763, 'quia', 'est', 'consequuntur', NULL, 'leopoldo.jerde@example.com', '2007-06-23 20:47:53');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('85', '4', 'accusantium', '27', '99720 Doyle Stravenue Apt. 585\nLemkeville, MN 50934-9672', '1424 Mosciski Pass Apt. 278\nPort Sedrick, DC 68027-3727', 0, 0, 'dolor', 'laudantium', 'est', NULL, 'irma.mohr@example.net', '1998-06-23 21:54:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('86', '6', 'quia', '391231175', '442 Bailey Causeway Suite 967\nLittlemouth, NC 78512', '8707 Jalon Port Apt. 047\nDouglasmouth, WA 92478', 60, 1, 'eum', 'qui', 'ducimus', NULL, 'abigail.rosenbaum@example.net', '1996-04-10 16:48:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('87', '6', 'et', '562619170', '47373 Ashly Hill\nNorth Keltonmouth, ID 92712-1384', '319 Crist Lake\nPort Patriciabury, TN 39396-2798', 466, 2147483647, 'qui', 'sapiente', 'qui', NULL, 'bechtelar.donna@example.com', '2005-03-14 20:53:49');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('88', '8', 'ex', '754351155', '7517 Andreane Terrace\nKoreychester, RI 00838-6438', '543 Lew Knolls\nWilfordhaven, NV 78509-4432', 2147483647, 699684, 'doloribus', 'ipsam', 'at', NULL, 'lyla.schimmel@example.com', '1974-06-08 05:48:20');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('89', '7', 'sit', '858', '24042 Cummerata Rapid Suite 642\nEast Adolphusstad, IN 43389', '468 Carmella Skyway Suite 172\nBoscoland, VT 94967', 1, 390108, 'fuga', 'beatae', 'qui', NULL, 'gfriesen@example.org', '2000-03-04 15:40:50');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('90', '8', 'error', '52116', '44625 Lind Park\nNorth Connie, ID 18283', '904 Earlene Viaduct\nSouth Chaimland, CT 28382-3988', 1, 0, 'dicta', 'et', 'vero', NULL, 'jovanny76@example.net', '2016-10-14 21:09:17');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('91', '5', 'neque', '953', '07555 Eulalia Center Apt. 532\nMafaldafort, AR 59810', '5832 Kristin Village\nNew Royborough, HI 48817', 298, 738, 'aut', 'quia', 'qui', NULL, 'joaquin.jenkins@example.com', '2002-09-24 18:04:17');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('92', '2', 'qui', '5', '899 Elwyn Mews\nPort Unique, MA 02520', '702 Treva Ports\nSmithtown, DE 37905-5854', 83336, 0, 'esse', 'sed', 'incidunt', NULL, 'trinity.ernser@example.com', '1985-12-15 10:37:57');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('93', '3', 'quod', '2836491', '0395 Pouros Wells Suite 367\nEast Margarette, FL 11057-7656', '2237 Devin Loop\nKutchtown, PA 64788-5074', 40, 25, 'id', 'labore', 'sed', NULL, 'lockman.shaina@example.com', '1990-11-24 00:46:44');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('94', '2', 'et', '253510', '435 Bennie Canyon Apt. 985\nRebeccaton, HI 29617', '6134 Hilma Station Apt. 364\nCummingstown, NV 47110-4500', 55, 628294, 'ab', 'ipsum', 'quo', NULL, 'dayna.gaylord@example.org', '2011-10-24 09:27:11');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('95', '1', 'explicabo', '396', '237 Weimann Street\nJenkinsport, TX 45507', '1251 Ima Forks\nMittiemouth, KY 90395-9147', 680967, 683, 'voluptates', 'itaque', 'voluptas', NULL, 'armando.hand@example.net', '2009-11-11 19:33:16');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('96', '2', 'illo', '9403', '7854 Faye Mission\nNorwoodton, MN 34342', '0466 Zoila Roads Apt. 988\nNorth Marlenchester, CO 18100-6688', 0, 0, 'qui', 'aut', 'esse', NULL, 'misael.bruen@example.com', '1990-08-02 09:50:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('97', '9', 'dolorum', '518408180', '63141 Harrison Spurs\nNew Laurence, TX 83369-0363', '47691 Rosanna Place\nNew Zelma, MA 14849', 1, 384247, 'animi', 'eaque', 'fugit', NULL, 'oceane45@example.com', '1989-05-07 18:13:37');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('98', '7', 'ut', '5066', '838 Carter Knolls\nNorth Graham, KS 26699', '14256 Demario Lights\nTillmanborough, ME 61236', 0, 493680, 'magnam', 'velit', 'quia', NULL, 'elroy14@example.net', '1988-11-14 17:08:13');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('99', '7', 'qui', '4398', '76032 Ledner Rapids\nVonRuedentown, CA 96155-6235', '09525 Ortiz Fort Suite 969\nMcGlynnbury, LA 00694-5029', 0, 1, 'totam', 'laborum', 'non', NULL, 'dubuque.ila@example.com', '2000-10-29 19:01:25');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `client` (`id_client`, `id_bank`, `name_exponent`, `INN`, `legal_address`, `mail_address`, `telephone`, `fax`, `surname`, `name`, `middle_name`, `position`, `email`, `created_at`) VALUES ('100', '7', 'voluptatem', '98256', '8667 Larson River\nLake Sylvia, AK 80460', '8518 Wilbert Fields Suite 066\nDustyfort, NM 24474', 0, 123, 'veniam', 'odio', 'tempore', NULL, 'maxime.aufderhar@example.net', '1981-01-25 05:05:41');
+Query OK, 1 row affected (0,01 sec)
+
+
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('1', 'laboriosam', '6', '1974-11-05 13:42:03');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('2', 'porro', '8', '1971-06-06 13:03:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('3', 'laborum', '9', '1997-06-09 19:20:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('4', 'consequuntur', '5', '2008-12-01 17:52:31');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('5', 'voluptate', '5', '2009-10-27 03:14:16');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('6', 'possimus', '9', '2017-10-25 00:42:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('7', 'pariatur', '2', '2015-08-02 01:50:18');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('8', 'neque', '8', '1978-12-30 21:17:53');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('9', 'asperiores', '3', '1979-10-16 07:44:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('10', 'qui', '1', '1994-06-24 19:42:51');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('11', 'quod', '5', '2016-01-28 20:29:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('12', 'et', '3', '1980-01-13 01:53:32');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('13', 'ut', '9', '2006-12-13 23:09:34');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('14', 'omnis', '8', '2002-02-26 18:24:45');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('15', 'iusto', '9', '1982-08-29 22:33:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('16', 'ex', '4', '1973-11-12 19:56:35');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('17', 'consectetur', '4', '1977-07-19 07:48:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('18', 'nobis', '4', '2021-01-24 23:52:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('19', 'soluta', '3', '1974-11-04 15:19:30');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('20', 'exercitationem', '6', '2000-06-22 22:48:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('21', 'illum', '9', '2013-10-10 19:55:25');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('22', 'earum', '8', '1982-04-27 11:43:29');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('23', 'quo', '7', '2000-09-06 00:50:40');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('24', 'dolor', '6', '1975-06-28 07:33:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('25', 'dolorem', '4', '2007-09-17 22:01:59');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('26', 'est', '3', '2013-11-06 22:54:41');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('27', 'eos', '5', '1980-04-10 09:20:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('28', 'sequi', '6', '1990-12-23 19:32:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('29', 'officia', '6', '2016-08-27 13:39:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('30', 'vel', '9', '2007-07-31 11:59:54');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('31', 'tempore', '8', '1996-03-16 15:52:47');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('32', 'quis', '4', '1997-03-05 13:27:46');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('33', 'ut', '7', '2009-01-09 17:11:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('34', 'facilis', '9', '2010-09-04 05:08:15');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('35', 'maxime', '4', '1990-12-11 13:47:58');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('36', 'a', '5', '1987-04-02 03:40:37');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('37', 'cum', '7', '1987-02-02 08:19:12');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('38', 'dolorum', '8', '1984-09-05 06:50:28');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('39', 'iure', '2', '1975-12-27 09:29:02');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('40', 'ratione', '4', '2000-04-30 08:20:35');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('41', 'voluptate', '7', '2008-07-23 23:53:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('42', 'voluptatem', '6', '1977-05-10 05:20:34');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('43', 'inventore', '7', '2003-05-16 10:15:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('44', 'omnis', '2', '1995-01-31 06:32:13');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('45', 'aut', '3', '1979-09-27 01:41:56');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('46', 'soluta', '6', '1999-09-30 10:19:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('47', 'quo', '9', '1977-01-08 18:53:05');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('48', 'odit', '2', '2014-11-18 19:25:55');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('49', 'maxime', '1', '1992-01-23 18:29:20');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `event` (`id_event`, `event_name`, `id_city`, `created_at`) VALUES ('50', 'unde', '8', '2013-12-04 09:36:54');
+Query OK, 1 row affected (0,01 sec)
+
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('1', 'exercitationem', 1, 1, '97', '1981-07-28 21:31:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('2', 'excepturi', 0, 873, '4940', '2006-07-13 14:37:39');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('3', 'doloribus', 1, 0, '54384', '1987-02-18 21:51:09');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('4', 'aut', 756061, 1, '983346', '1988-08-21 10:50:07');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('5', 'voluptatem', 1, 45, '107226', '2005-10-16 01:02:54');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('6', 'eos', 488, 0, '524361', '1989-10-21 17:23:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('7', 'possimus', 0, 0, '34', '2020-05-18 06:01:22');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('8', 'vero', 322, 245079967, '23861', '2004-02-16 05:01:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('9', 'aut', 0, 272609, '96', '1972-02-24 00:55:44');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('10', 'esse', 920, 1, '2847698', '1993-09-20 23:48:21');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('11', 'voluptas', 22, 708, '707', '2016-02-06 13:17:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('12', 'voluptas', 83, 483049, '9042', '1984-04-27 20:22:20');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('13', 'mollitia', 1, 460471, '63522588', '1987-03-15 05:11:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('14', 'at', 68, 693348805, '23874814', '2013-01-02 20:52:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('15', 'quasi', 1, 648472, '670704', '1996-03-20 16:54:20');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('16', 'ducimus', 178696, 5610, '337', '1992-09-23 22:10:33');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('17', 'et', 573062, 494, '2', '1994-04-08 09:34:24');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('18', 'dignissimos', 751356, 0, '979', '2009-08-08 14:09:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('19', 'a', 592189, 1, '4', '1987-04-26 15:24:10');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('20', 'autem', 75, 252124, '8915', '2008-01-06 08:21:02');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('21', 'cum', 0, 0, '655181243', '1997-12-30 22:25:30');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('22', 'aspernatur', 689, 0, '4715569', '1972-05-23 14:51:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('23', 'totam', 1, 0, '', '1991-04-24 10:30:35');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('24', 'aut', 0, 0, '339473995', '1997-07-25 04:08:02');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('25', 'officia', 1, 1, '6364', '1982-08-19 07:25:22');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('26', 'qui', 1, 0, '255908', '2017-11-27 00:18:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('27', 'rerum', 1, 226, '9370655', '1999-10-13 20:39:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('28', 'et', 647937, 31, '1891827', '2015-11-02 00:34:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('29', 'et', 72424, 1, '9657', '1997-12-26 17:56:56');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition_operator` (`id_exhibition_operator`, `name`, `telephone`, `fax`, `INN`, `created_at`) VALUES ('30', 'illo', 1, 14, '5450093', '1986-01-17 00:01:12');
+Query OK, 1 row affected (0,00 sec)
+
+mysql> INSERT INTO `form_of_participation` (`id_fop`, `name_fop`, `org_service`, `price`, `created_at`) VALUES ('1', 'quibusdam', '570436332', 5873451, '1997-02-05 03:30:42');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `form_of_participation` (`id_fop`, `name_fop`, `org_service`, `price`, `created_at`) VALUES ('2', 'consequuntur', '99', 3, '1991-09-10 02:07:35');
+Query OK, 1 row affected (0,01 sec)
+
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('1', '6', '5', 'voluptas', '2005-07-18', '1999-08-25 23:39:27');
+02');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('2', '8', '2', 'reprehenderit', '2008-02-29', '1999-02-10 18:35:19');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('3', '5', '9', 'architecto', '1994-06-30', '2019-02-12 07:27:28');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('4', '3', '4', 'aut', '1970-01-21', '1999-04-02 01:34:37');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('5', '7', '6', 'sint', '2006-12-24', '1995-05-28 22:14:18');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('6', '9', '4', 'quasi', '2006-07-28', '1977-12-15 08:38:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('7', '5', '4', 'laboriosam', '2005-11-07', '1987-05-18 19:29:15');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('8', '5', '3', 'aut', '2002-03-30', '1991-01-09 12:26:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('9', '9', '3', 'animi', '2003-08-29', '1975-11-21 15:07:47');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('10', '2', '6', 'cupiditate', '1999-02-06', '2015-06-06 17:22:28');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('11', '1', '6', 'sed', '2009-04-05', '2014-11-10 21:00:17');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('12', '8', '5', 'non', '1981-03-18', '1984-11-19 06:02:26');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('13', '3', '3', 'consequatur', '1974-06-11', '1992-02-15 12:16:00');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('14', '2', '7', 'animi', '1999-08-27', '1987-10-08 23:01:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('15', '1', '9', 'sint', '1979-09-19', '2016-11-05 18:43:31');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('16', '9', '9', 'qui', '1994-05-24', '2007-05-29 22:31:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('17', '9', '2', 'architecto', '1976-03-12', '1980-10-25 16:01:25');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('18', '1', '2', 'ut', '1976-11-20', '2016-04-26 16:37:16');
+Query OK, 1 row affected (0,01 sec)
+INSERT INTO `exhQuery OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('19', '7', '3', 'culpa', '2018-04-22', '1976-03-14 04:00:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('20', '3', '5', 'repudiandae', '2013-08-21', '1981-09-05 22:06:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('21', '3', '8', 'qui', '1973-11-27', '1995-10-17 18:00:02');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('22', '8', '3', 'est', '2001-07-28', '1972-04-12 17:10:08');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('23', '2', '5', 'odio', '2009-09-15', '1979-09-14 05:37:08');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('24', '7', '4', 'voluptatem', '1999-11-06', '1992-09-30 07:01:42');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('25', '6', '3', 'et', '2007-03-28', '1970-05-15 14:25:33');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('26', '1', '9', 'earum', '2000-12-15', '2014-09-25 04:05:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('27', '5', '4', 'et', '2012-12-28', '2010-03-01 07:13:03');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('28', '7', '3', 'ut', '1993-10-08', '1981-02-18 20:37:49');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('29', '7', '3', 'incidunt', '1971-02-23', '1992-07-24 08:15:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('30', '3', '4', 'optio', '1976-07-30', '2015-12-10 07:39:38');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('31', '7', '9', 'sit', '2007-06-25', '1990-09-22 10:15:29');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('32', '5', '8', 'fuga', '1991-12-31', '1995-05-20 19:23:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('33', '5', '2', 'aperiam', '2014-07-31', '1989-11-04 07:38:28');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('34', '5', '2', 'nisi', '1990-10-21', '2018-08-29 00:18:55');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('35', '9', '1', 'eum', '1970-06-01', '2019-02-03 14:15:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('36', '5', '5', 'quia', '2014-08-31', '2007-09-08 00:05:33');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('37', '5', '5', 'voluptas', '2000-12-27', '1985-07-03 11:28:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('38', '3', '6', 'cumque', '1979-08-06', '2017-09-11 22:40:17');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('39', '9', '9', 'minus', '1988-05-02', '1976-06-18 19:54:38');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('40', '5', '9', 'at', '2000-12-01', '2015-12-04 05:35:38');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('41', '6', '4', 'est', '1991-04-07', '2009-07-15 16:15:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('42', '1', '9', 'assumenda', '1978-08-25', '1995-06-14 19:26:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('43', '7', '1', 'qui', '2004-12-25', '2001-10-30 19:23:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('44', '5', '3', 'expedita', '1976-10-04', '2015-03-06 22:27:43');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('45', '7', '8', 'iste', '2001-05-15', '1988-10-03 20:56:51');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('46', '6', '2', 'dicta', '2009-09-03', '1979-06-15 19:02:00');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('47', '3', '5', 'non', '2005-03-10', '1971-03-24 07:21:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('48', '3', '9', 'tempore', '1985-11-19', '1988-07-09 22:28:46');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('49', '9', '7', 'excepturi', '2000-06-07', '2008-12-25 23:02:39');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('50', '9', '3', 'sit', '1991-12-01', '1972-12-11 20:38:32');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('51', '3', '7', 'inventore', '1984-10-14', '1995-10-29 14:15:03');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('52', '9', '7', 'corrupti', '2005-06-06', '1971-03-18 11:55:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('53', '3', '8', 'non', '2014-08-13', '1986-07-13 12:46:03');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('54', '5', '2', 'quia', '1977-04-30', '1997-07-07 08:39:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('55', '3', '9', 'repudiandae', '1983-07-07', '1981-01-01 03:29:15');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('56', '9', '3', 'et', '1994-11-16', '1995-08-31 13:11:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('57', '2', '3', 'at', '2005-02-14', '2013-08-01 08:20:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('58', '1', '3', 'modi', '1983-02-07', '2011-08-29 02:54:09');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('59', '3', '2', 'consectetur', '2017-09-29', '2011-01-02 00:55:05');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('60', '7', '9', 'dolor', '1971-04-22', '1988-02-11 01:23:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('61', '8', '6', 'quia', '1999-05-04', '2017-07-13 21:14:57');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('62', '3', '7', 'rerum', '1988-09-08', '2016-11-28 14:27:59');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('63', '9', '8', 'cum', '1976-05-17', '1977-06-10 06:29:43');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('64', '9', '7', 'blanditiis', '1981-06-16', '1997-05-27 16:02:32');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('65', '7', '5', 'mollitia', '2008-05-29', '1973-05-29 02:18:33');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('66', '3', '3', 'delectus', '1972-10-17', '2021-03-03 05:00:59');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('67', '4', '1', 'natus', '1998-12-08', '2017-11-28 04:02:51');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('68', '9', '9', 'laudantium', '2016-05-27', '1977-09-29 16:48:08');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('69', '9', '2', 'laborum', '1984-01-10', '1989-09-01 22:54:55');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('70', '6', '1', 'ipsa', '1980-05-26', '1996-02-22 01:04:44');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('71', '4', '8', 'aut', '1980-09-08', '1970-04-23 05:16:25');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('72', '6', '1', 'velit', '2015-11-23', '2016-06-07 00:09:46');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('73', '5', '7', 'autem', '2005-06-22', '1998-02-14 14:48:31');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('74', '5', '4', 'quis', '2009-11-15', '1974-02-18 03:14:50');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('75', '9', '2', 'ipsum', '2020-11-08', '2015-05-29 20:04:36');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('76', '8', '2', 'enim', '1989-02-15', '1993-09-25 00:22:00');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('77', '1', '4', 'explicabo', '1999-08-15', '1990-08-06 01:19:42');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('78', '7', '7', 'doloremque', '1989-10-17', '1992-02-24 15:36:39');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('79', '1', '8', 'ipsa', '1991-11-09', '1975-09-08 13:21:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('80', '3', '2', 'deserunt', '2014-10-06', '1991-06-25 07:04:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('81', '7', '7', 'possimus', '1985-05-31', '2000-04-01 21:38:01');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('82', '2', '9', 'voluptas', '2003-12-06', '1998-12-21 00:32:50');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('83', '3', '5', 'distinctio', '2016-08-13', '2011-04-29 11:24:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('84', '9', '3', 'autem', '1974-06-18', '2012-02-18 01:22:51');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('85', '9', '5', 'unde', '2014-07-09', '1971-02-02 08:14:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('86', '9', '9', 'repellat', '1999-01-15', '1986-05-28 23:08:01');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('87', '3', '8', 'beatae', '1987-09-27', '2019-04-10 18:07:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('88', '9', '6', 'saepe', '2020-11-29', '2016-01-01 17:22:53');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('89', '8', '6', 'qui', '1999-10-30', '1993-10-21 03:36:43');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('90', '6', '2', 'cum', '1988-06-06', '1980-10-16 01:23:54');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('91', '5', '9', 'numquam', '2004-04-17', '1979-12-01 23:26:57');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('92', '9', '5', 'eos', '2017-07-14', '1985-06-18 02:26:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('93', '2', '4', 'praesentium', '2003-03-27', '1998-12-10 16:54:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('94', '3', '9', 'impedit', '2006-03-31', '1980-09-27 05:53:43');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('95', '2', '8', 'dolore', '1999-10-15', '1995-11-01 12:13:05');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('96', '9', '3', 'iste', '1996-05-13', '2003-06-06 19:35:43');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('97', '7', '2', 'excepturi', '1997-09-06', '2006-09-12 13:46:45');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('98', '5', '5', 'officiis', '1981-12-22', '1984-05-21 03:24:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('99', '6', '2', 'non', '2009-04-02', '2013-01-22 22:16:40');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `exhibition` (`id_exhibition`, `id_event`, `id_exhibition_operator`, `exhibition_name`, `date_exhibition`, `created_at`) VALUES ('100', '9', '3', 'officiis', '1979-01-15', '1998-08-10 06:46:04');
+Query OK, 1 row affected (0,00 sec)
+
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('1', 6, '9', 0, '1970-02-28 16:19:44');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('2', 3, '7', 0, '2007-06-11 08:47:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('3', 4, '6', 0, '2012-04-20 23:32:58');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('4', 4, '5', 0, '1979-04-30 02:20:08');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('5', 5, '4', 0, '2013-07-03 01:11:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('6', 6, '2', 0, '1992-10-14 17:57:44');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('7', 6, '8', 0, '1973-01-06 19:47:29');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('8', 3, '9', 0, '1973-05-14 21:52:02');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('9', 3, '4', 0, '1987-03-15 14:58:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('10', 5, '1', 0, '1998-10-06 13:51:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('11', 3, '7', 0, '1996-06-10 15:39:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('12', 2, '2', 0, '1981-05-23 14:19:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('13', 3, '2', 0, '1996-05-21 07:03:54');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('14', 9, '8', 0, '1996-12-04 12:22:54');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('15', 3, '6', 0, '1993-07-06 00:20:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('16', 2, '1', 0, '1987-01-28 13:19:39');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('17', 3, '5', 0, '1972-12-06 15:25:40');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('18', 7, '1', 0, '1990-11-08 09:28:02');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('19', 7, '3', 0, '1982-09-26 02:14:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('20', 5, '5', 0, '1970-07-20 09:13:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('21', 5, '6', 0, '1987-12-01 03:49:34');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('22', 7, '2', 0, '1989-04-01 09:48:10');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('23', 4, '8', 0, '2013-01-24 21:50:15');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('24', 7, '2', 0, '1982-01-27 18:21:52');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('25', 2, '7', 0, '1984-03-03 06:11:25');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('26', 1, '1', 0, '1974-05-26 14:27:19');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('27', 9, '6', 0, '1994-03-05 21:43:33');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('28', 4, '6', 0, '2016-09-23 20:56:54');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('29', 4, '3', 0, '1975-10-03 20:56:22');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('30', 8, '5', 0, '2014-03-10 01:04:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('31', 1, '3', 0, '1983-11-05 09:11:10');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('32', 2, '3', 0, '1974-11-17 10:03:51');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('33', 2, '2', 0, '1972-10-01 17:18:54');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('34', 2, '9', 0, '2008-09-23 08:57:40');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('35', 8, '6', 0, '2009-06-21 22:58:53');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('36', 8, '2', 0, '1996-05-27 17:52:59');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('37', 7, '7', 0, '1995-10-30 18:46:54');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('38', 2, '6', 0, '2005-06-19 04:48:36');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('39', 7, '2', 0, '2018-10-17 21:25:25');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('40', 1, '6', 0, '1999-03-09 19:26:40');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('41', 4, '6', 0, '2007-12-06 22:00:49');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('42', 9, '2', 0, '2005-04-19 16:59:52');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('43', 1, '5', 0, '1977-09-26 17:53:33');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('44', 5, '5', 0, '1971-01-06 18:55:03');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('45', 8, '5', 0, '2016-12-27 18:53:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('46', 3, '6', 0, '1978-06-26 12:42:08');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('47', 7, '6', 0, '2003-01-18 23:51:59');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('48', 4, '8', 0, '2010-09-29 22:18:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('49', 5, '8', 0, '1976-12-07 20:06:50');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `stand` (`id_stand`, `num_stand`, `id_exhibition`, `status`, `created_at`) VALUES ('50', 2, '2', 0, '1997-06-11 13:10:03');
+
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('1', '3', '2', 'Eius nisi sapiente autem quisquam delectus sed id.', '2011-06-11 16:24:12');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('2', '7', '1', 'Quod fuga et et fugiat velit suscipit. Sapiente ip', '1999-08-26 19:43:35');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('3', '6', '9', 'Numquam distinctio quo recusandae ipsa. Error ab d', '1979-05-03 06:39:05');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('4', '2', '7', 'Sit et aut nostrum rerum dolores asperiores. Dolor', '1971-03-13 16:21:07');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('5', '1', '3', 'Facilis explicabo ex corporis sunt qui voluptatem ', '2017-11-26 14:43:32');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('6', '1', '1', 'Ratione qui ut vitae quidem eum. Exercitationem re', '2013-07-12 15:26:03');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('7', '6', '6', 'Consequatur hic debitis ea. A voluptatem quos opti', '1993-05-17 13:29:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('8', '4', '7', 'Rerum impedit quaerat qui voluptas. Et veritatis l', '1983-06-16 18:38:37');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('9', '3', '4', 'Et architecto voluptas adipisci est quod maxime in', '1998-07-07 21:51:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('10', '7', '9', 'Consequuntur fugit ut nobis quibusdam. Autem et ut', '1995-09-27 14:50:40');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('11', '8', '6', 'Delectus dolor at numquam et esse officiis. Sit ei', '1984-03-14 17:37:09');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('12', '5', '8', 'Doloribus ut quam doloremque. Explicabo sit ut eiu', '2021-05-21 08:28:55');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('13', '6', '9', 'Ad aspernatur beatae quod laborum vel quasi. Ut is', '1988-01-30 14:35:46');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('14', '1', '9', 'Deleniti tempora necessitatibus explicabo ab. Fugi', '1982-01-22 23:09:31');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('15', '5', '6', 'Eos sit odit ullam omnis possimus. Numquam placeat', '2007-09-11 16:17:19');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('16', '8', '8', 'Repellat fuga voluptatem vel. Iste quia culpa volu', '1990-10-25 02:02:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('17', '2', '2', 'Eius a dolorem voluptas. Quidem ipsa et dolorem fu', '1988-12-03 22:11:05');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('18', '1', '2', 'Officia et sapiente quisquam. Asperiores est aut e', '1983-07-17 22:21:13');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('19', '9', '7', 'Impedit sunt a nihil modi ut. Sed nam nobis et vol', '1995-01-07 00:42:50');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('20', '7', '7', 'Suscipit earum exercitationem dolore accusantium v', '1995-11-15 15:37:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('21', '8', '1', 'Earum corporis voluptatum est nihil inventore. Vol', '2012-07-04 09:31:51');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('22', '9', '1', 'Rerum nisi repudiandae qui iusto et earum est. Sit', '1978-12-10 22:32:13');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('23', '9', '9', 'Voluptas illum fugit sit delectus. Voluptas et rep', '1994-06-29 19:14:38');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('24', '8', '1', 'Totam et consequatur est. Sunt beatae cupiditate a', '2019-06-20 14:10:25');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('25', '5', '3', 'Quia molestiae minus nihil suscipit et ad. Aut aut', '1981-01-18 05:10:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('26', '3', '8', 'Ex quibusdam voluptas dignissimos beatae. Veritati', '2010-05-04 19:57:46');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('27', '1', '5', 'Voluptatem blanditiis blanditiis illo officia. Aut', '1989-01-01 03:58:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('28', '7', '2', 'Voluptatem temporibus vel molestiae laudantium. Es', '1997-06-01 15:34:43');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('29', '8', '4', 'In aliquid porro itaque. Voluptas odit et unde. Pe', '2008-01-28 19:26:33');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('30', '8', '3', 'Qui dolorum tempore dolorem animi debitis. Est est', '2008-03-20 21:58:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('31', '9', '7', 'Laudantium quae consequatur optio recusandae qui e', '1993-09-10 21:51:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('32', '9', '9', 'Officia cum doloremque exercitationem unde earum e', '1987-12-02 19:30:51');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('33', '9', '8', 'Et porro quia maxime velit omnis omnis. Aut qui qu', '1981-11-06 12:28:12');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('34', '3', '6', 'Nobis autem ea quibusdam aliquam. Ab ut ut autem q', '2007-07-08 14:31:32');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('35', '1', '1', 'Soluta natus a sequi. Exercitationem debitis quasi', '2013-01-15 11:45:32');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('36', '1', '6', 'Et provident modi sint ex aut aut tempore. Qui qua', '2008-04-13 21:02:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('37', '7', '3', 'Repellat minima autem aliquid hic blanditiis. Adip', '2000-03-27 17:07:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('38', '8', '5', 'Quo aut dicta consequuntur blanditiis saepe dolore', '2020-11-24 10:15:32');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('39', '8', '9', 'Possimus est aut deleniti atque qui dolorem. In re', '1972-03-17 15:43:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('40', '6', '4', 'Aut est adipisci nam est magni harum omnis tempore', '2003-12-09 07:36:47');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('41', '8', '3', 'Eveniet similique sapiente id quia autem. Impedit ', '2010-04-08 15:24:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('42', '9', '1', 'Ipsa atque quos aut magnam at illum aut nisi. Rem ', '1992-02-18 09:49:36');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('43', '1', '3', 'Sit facere dolorum commodi tempore esse ut placeat', '1986-03-09 01:57:59');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('44', '2', '3', 'Fugit et qui aut omnis quisquam ea quia. Et qui ul', '2001-11-03 00:05:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('45', '5', '6', 'Nesciunt sit adipisci et quia a sit aut. Omnis qui', '2005-12-22 08:02:29');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('46', '5', '5', 'Iste consequuntur sit unde. Libero aut aut eligend', '1990-02-11 10:43:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('47', '8', '4', 'Molestiae corporis perferendis modi sunt sed enim ', '1978-11-09 22:43:05');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('48', '9', '9', 'Sed et dolores id laborum et. Quam natus sint porr', '2001-03-04 10:48:01');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('49', '8', '6', 'Voluptas numquam aspernatur nihil perspiciatis ali', '1990-12-06 11:30:31');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('50', '3', '5', 'Voluptatem repudiandae velit nihil commodi. Autem ', '1995-09-08 03:49:35');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('51', '3', '1', 'Pariatur repellendus sint ut alias molestiae paria', '2005-12-16 10:42:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('52', '3', '1', 'Et eveniet nihil occaecati veniam saepe nostrum vo', '1971-04-14 01:15:59');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('53', '1', '7', 'Omnis est ut reiciendis esse alias qui nihil. Atqu', '1997-08-15 19:00:53');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('54', '3', '9', 'Nobis fuga doloribus id ipsa non officia. Eum tene', '1980-07-10 17:37:55');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('55', '2', '5', 'Qui ex aut omnis non nobis occaecati. Exercitation', '1975-08-16 03:00:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('56', '9', '5', 'Necessitatibus autem tempore eos facilis at. Quae ', '1990-04-06 06:53:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('57', '4', '6', 'Labore ad vitae impedit similique nisi provident e', '1988-10-07 14:56:32');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('58', '3', '7', 'Ut laudantium nam qui autem nesciunt ut et. Aut cu', '2000-03-03 06:14:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('59', '8', '4', 'Aliquid ullam et expedita labore ipsum molestias. ', '2016-06-07 06:30:33');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('60', '2', '8', 'Dolorem aspernatur qui aliquam quia. Quibusdam imp', '1989-06-14 12:05:59');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('61', '4', '8', 'Consequatur corrupti facilis adipisci excepturi. Q', '2000-11-14 16:11:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('62', '4', '7', 'Qui non saepe modi minus non. Officia impedit beat', '1996-08-03 12:07:09');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('63', '8', '2', 'Et quo in officiis eveniet eos magnam voluptas asp', '2001-02-26 17:23:50');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('64', '2', '5', 'Est fugiat consequatur voluptas vero odit. Ipsum n', '2014-03-08 20:22:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('65', '8', '7', 'Eligendi reprehenderit ut nam ea eum nam. Quisquam', '1978-10-12 09:54:14');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('66', '5', '4', 'Soluta voluptates recusandae repellendus ducimus. ', '2015-10-15 20:41:20');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('67', '7', '9', 'Aut beatae et rerum nam. Quo consequatur repudiand', '1992-06-21 21:58:46');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('68', '9', '4', 'Voluptatum perspiciatis inventore assumenda aspern', '2016-03-12 04:38:48');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('69', '2', '7', 'Quibusdam quibusdam culpa qui sapiente suscipit. P', '2016-08-15 07:11:05');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('70', '6', '3', 'Cum reprehenderit beatae voluptatem accusamus porr', '2011-11-29 21:35:54');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('71', '2', '6', 'Dolor ducimus accusantium amet quis voluptas excep', '2021-03-23 03:59:36');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('72', '8', '2', 'Facilis inventore qui ut. Impedit labore consequat', '1971-05-10 23:57:04');
+Qery OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('73', '8', '9', 'Corporis sed velit maiores eligendi eos. Est solut', '2021-06-22 02:50:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('74', '7', '7', 'Sint sit incidunt delectus est iste explicabo corr', '1972-11-19 17:41:57');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('75', '4', '1', 'Maxime hic omnis placeat qui. Iusto dignissimos in', '1991-12-02 10:50:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('76', '6', '4', 'Culpa voluptatum autem aut autem provident et. Nem', '1990-11-27 03:23:18');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('77', '6', '6', 'Est aspernatur quae consequatur. Et rerum illum ex', '2020-03-25 11:55:16');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('78', '7', '8', 'Sapiente et quia totam eos id ipsam. Non voluptas ', '1977-03-09 21:55:34');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('79', '3', '9', 'Temporibus facilis officia similique aut labore se', '1988-06-29 07:33:55');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('80', '4', '8', 'Iure sed consequuntur reiciendis deleniti aut eos ', '2017-06-04 10:44:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('81', '6', '5', 'Dolor minima et doloribus reprehenderit et. Non ra', '1980-07-18 06:25:04');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('82', '1', '7', 'Et quas voluptatem modi sed. Itaque autem ut eos s', '1988-05-26 14:07:26');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('83', '4', '2', 'Maiores provident quia reprehenderit voluptates do', '1972-09-25 11:49:50');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('84', '8', '5', 'Harum tenetur quaerat eveniet suscipit praesentium', '1989-12-28 22:20:35');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('85', '1', '4', 'Culpa sunt deleniti et atque reprehenderit laudant', '2000-02-19 04:08:52');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('86', '8', '8', 'Soluta qui veniam tempora et fugit quia ad. Praese', '2009-08-06 03:24:19');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('87', '2', '3', 'Rem suscipit nemo suscipit. Nesciunt aliquid dolor', '1994-01-18 04:18:14');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('88', '3', '6', 'Iure illum dolorum tenetur asperiores omnis. Molli', '2009-12-06 16:24:02');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('89', '2', '6', 'Eum omnis aut ipsam libero vitae et. Odio voluptas', '2003-05-28 17:09:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('90', '5', '3', 'Laborum accusantium architecto sunt modi voluptate', '1989-09-07 15:27:32');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('91', '7', '1', 'Ut ratione et accusantium ipsa omnis dolorum velit', '1998-07-15 18:08:17');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('92', '9', '1', 'Sint tempore incidunt corrupti exercitationem cons', '1998-07-16 16:19:24');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('93', '1', '8', 'Officiis magnam quidem assumenda distinctio qui ex', '1971-12-24 05:09:15');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('94', '9', '6', 'Doloribus deleniti dolor placeat beatae ut et debi', '1980-03-05 04:56:50');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('95', '4', '4', 'Enim maiores asperiores quaerat vitae officiis. Ev', '1989-06-18 09:10:08');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('96', '4', '7', 'Qui quibusdam officiis porro tenetur delectus veni', '1984-07-27 02:49:07');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('97', '3', '8', 'Cumque aut minima molestiae soluta eligendi quis. ', '2006-02-03 05:53:21');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('98', '7', '8', 'Mollitia omnis saepe dolorem esse ut hic quia cons', '2008-04-17 21:16:25');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('99', '6', '1', 'Error incidunt officiis fuga laboriosam. Eos occae', '2020-01-14 11:37:45');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `invitation` (`id_invitation`, `id_exhibition`, `id_client`, `status`, `created_at`) VALUES ('100', '6', '8', 'Voluptates atque optio iusto voluptas quia. Velit ', '2001-12-10 00:14:45');
+Query OK, 1 row affected (0,01 sec)
+
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('1', '4', '9', '2', 'Voluptas quas rem assumenda explicabo non optio. Ullam ab voluptatem autem dignissimos. Corrupti voluptatem deserunt nam blanditiis aliquid a esse est', '2002-05-03', '2011-10-09 11:01:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('2', '5', '7', '1', 'Accusantium qui enim quaerat consequatur suscipit. Et expedita porro culpa eius cum. Dolore quo qui voluptatem.', '1990-04-11', '2019-09-29 00:28:44');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('3', '3', '5', '1', 'Repellendus qui odio et ducimus perferendis soluta. Ab animi excepturi eos ratione in quos ea. Corporis nemo sint magnam. Aut ab minus ullam non.', '1977-04-24', '2011-04-08 17:10:57');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('4', '9', '1', '2', 'Voluptate laudantium nam saepe ut. Id quae quia tempora eos voluptas.', '2010-08-24', '1972-08-14 21:31:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('5', '4', '7', '2', 'Magni nihil et deleniti voluptatem tempora. Et rerum molestias voluptas omnis. Animi dolores voluptatibus porro odit repellat et.', '2001-08-06', '2002-03-05 05:39:06');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('6', '2', '2', '2', 'Labore qui dolorum nostrum aut voluptatem. Placeat ipsum ducimus nam eaque. Corrupti expedita enim inventore et. Laborum sunt voluptatem ipsa velit su', '1987-07-24', '1979-11-03 16:38:49');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('7', '7', '7', '2', 'Est quia asperiores animi. Dolorem qui nisi eveniet labore asperiores quisquam. Officiis cupiditate fugiat qui assumenda pariatur. Qui id nam eaque cu', '1991-05-17', '2014-06-06 01:29:22');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('8', '4', '9', '2', 'Pariatur quia quaerat perferendis facilis eum expedita ipsam. Fugiat numquam minima aut laborum. Fugiat iure et omnis vitae molestiae. Ad ducimus elig', '2014-08-12', '1987-03-15 07:59:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('9', '5', '5', '2', 'Eius dolores officiis et est id deserunt cum. Amet vel aut ut corporis libero molestiae et. Sint quo accusamus delectus harum sint repellat voluptatem', '1995-07-05', '1998-06-01 23:14:54');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('10', '4', '6', '1', 'Minima nihil praesentium voluptatem aut non sint. Cupiditate laborum corporis velit perferendis ad. Quam ipsum laudantium excepturi rerum ipsa dolor q', '1994-12-24', '1997-01-10 09:06:07');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('11', '7', '9', '2', 'Optio iure optio magni corporis vel quis. Praesentium necessitatibus molestiae laboriosam incidunt. Itaque et possimus labore. Blanditiis accusamus so', '1979-12-16', '2021-04-18 23:03:00');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('12', '3', '6', '2', 'Reprehenderit ad tempore sunt qui repellat delectus sapiente. Sit voluptatem officia provident voluptatem. Est ad voluptatum praesentium perferendis. ', '2020-10-16', '1975-12-26 13:29:10');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('13', '6', '7', '1', 'Aut et et est dolore aspernatur deleniti cum. Neque est totam ipsam ea aut ad. Ea corrupti incidunt impedit quas. Fugiat laborum voluptatibus quis.', '1972-04-16', '1999-01-07 22:05:34');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('14', '9', '4', '2', 'Corporis nostrum aspernatur dolor architecto et. Quo explicabo optio quibusdam nihil officia. Est recusandae sint velit dolorem autem adipisci ipsam. ', '2015-01-15', '2017-12-18 00:47:08');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('15', '1', '2', '1', 'Dolorem et asperiores tempora in fuga nihil. Officia voluptas eum tenetur explicabo expedita assumenda natus facilis. Illo vitae sit fuga quaerat. Dol', '1977-10-31', '1986-09-14 04:23:06');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('16', '7', '6', '2', 'Sunt molestiae omnis itaque excepturi. Veniam et illo minus aut eum. Totam non explicabo rem beatae maxime.', '1974-02-06', '1991-06-30 17:31:36');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('17', '4', '2', '2', 'Omnis pariatur laborum eum et dicta. Aspernatur vero dicta sed qui. Nulla itaque odio nostrum quis modi.', '1985-09-15', '1988-09-17 14:15:34');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('18', '4', '2', '2', 'Repudiandae delectus autem non quos consequatur maiores sit sequi. Dignissimos corporis alias rerum quos. Animi quia vel perferendis expedita sed prae', '1977-02-12', '1971-03-26 15:26:02');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('19', '1', '9', '1', 'Alias magni et ut facilis. Eaque sunt recusandae et autem similique totam sed. Enim id sed quis quas. Alias rerum totam ut doloremque enim ratione eni', '2013-04-11', '1996-03-12 06:39:35');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `registration` (`id_registration`, `id_client`, `id_exhibition`, `id_fop`, `status`, `date_registration`, `created_at`) VALUES ('20', '7', '6', '1', 'Quia nostrum eaque officiis eveniet ratione qui inventore. Atque animi est impedit commodi sapiente. Doloribus veniam veniam quis ipsam. Voluptatibus ', '1994-02-15', '1980-07-26 10:05:11');
+Query OK, 1 row affected (0,00 sec)
+
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('1', '5', '5', '1000', 'tsrtjsrtjsyj', 'ilrykril', 'sgf@example.org', '2002-05-13', '1503', '2011-12-03 12:02:40');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('2', '4', '19', '1234', 'yjtkguo', 'erogua', 'owtg@example.org', '2003-06-03', '2090', '2012-10-02 10:01:55');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('3', '17', '23', '1342', 'asdyguoldtyj', 'wrogir', 'xitf@example.org', '2005-01-05', '6579', '2014-11-02 09:01:32');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('4', '11', '44', '1986', 'zykduid', 'tjtypty', 'owhyu@example.org', '2008-07-08', '10567', '2020-10-03 11:03:15');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('5', '10', '17', '1735', 'zmfop', 'uipt', 'mnosfg@example.org', '2002-05-21', '1323', '2010-09-04 11:04:11');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('6', '7', '13', '1735', 'zmfop', 'uipt', 'mnosfg@example.org', '2002-05-21', '1323', '2010-09-04 11:04:11');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('7', '9', '31', '1078', 'rhakgger', 'urnc', 'fort@example.org', '2004-08-28', '1748', '2008-05-06 09:07:08');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('8', '15', '13', '1443', 'nosddr', 'prqe', 'pehg@example.org', '2009-05-23', '1901', '2012-03-07 11:11:31');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('9', '13', '21', '1532', 'qur', 'erj', 'vit@example.org', '2011-05-04', '1432', '2013-10-08 12:16:41');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('10', '2', '10', '1589', 'aorarberjkh', 'yjsty', 'iwfy@example.org', '2013-10-03', '5678', '2017-04-10 22:01:19');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('11', '12', '3', '1601', 'ljaerb', 'owd', 'aorh@example.org', '2016-05-06', '9247', '2019-06-03 11:06:27');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('12','1', '14', '1703', 'sie', 'etyo', 'katfr@example.org', '2006-12-08', '10316', '2021-10-11 23:08:30');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('13', '18', '27', '1855', 'totoro', 'rtjsrthdfhfyuo', 'rehr@example.org', '2009-11-13', '2965', '2014-10-23 11:12:39');
+Query OK, 1 row affected (0,02 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('14', '3', '47', '1004', 'xtfvrt', 'lyuihiser', 'zauff@example.org', '2015-05-16', '25392', '2015-10-26 04:08:04');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('15', '6', '33', '1373', 'msti', 'gkyuuy', 'jerr@example.org', '2002-12-20', '10431', '2005-12-03 07:01:24');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('16', '8', '34', '1894', 'lanhd', 'qthnxfver', 'hdo@example.org', '2003-09-28', '1678', '2011-04-07 17:02:21');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('17', '14', '11', '1676', 'fdna', 'yyervdfs', 'qzc@example.org', '2002-05-04', '6720', '2006-02-08 11:01:10');
+Query OK, 1 row affected (0,01 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('18', '16', '2', '1734', 'fdsiar', 'hdyuofyth', 'oeft@example.org', '2012-06-08', '8010', '2016-09-13 19:03:49');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('19', '20', '26', '1322', 'peiir', 'sfrhi', 'tttrd@example.org', '2002-02-09', '4239', '2010-10-09 20:01:13');
+Query OK, 1 row affected (0,00 sec)
+mysql> INSERT INTO `agreement` (`id_agreement`,`id_registration`,`id_stand`,`num_agreement`,`appinfo`,`appstand`,`mail`,`date`,`price`, `created_at`) VALUES ('20', '19', '40', '1200', 'piedfj', 'rgsr6', 'klksd@example.org', '2013-05-13', '152849', '2015-10-08 11:01:11');
+Query OK, 1 row affected (0,01 sec)
+
+mysql> CREATE UNIQUE INDEX client_email_idx ON client(email);
+Query OK, 0 rows affected (0,08 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE UNIQUE INDEX city_name_idx ON city(city_name);
+Query OK, 0 rows affected (0,06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE UNIQUE INDEX exhibition_operator_INN_idx ON exhibition_operator(INN);
+Query OK, 0 rows affected (0,04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE UNIQUE INDEX bank_name_idx ON bank(name_bank);
+Query OK, 0 rows affected (0,03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE VIEW ExhibitionOperatorEvent AS
+    -> SELECT exhibition_operator.name AS OperatorName, event.event_name AS EventName, exhibition.exhibition_name AS ExhibitionName
+    -> FROM exhibition
+    -> INNER JOIN exhibition_operator ON exhibition.id_exhibition_operator=exhibition_operator.id_exhibition_operator
+    -> INNER JOIN event ON exhibition.id_event=event.id_event
+    -> ORDER BY exhibition_operator.name, event.event_name;
+Query OK, 0 rows affected (0,01 sec)
+
+mysql> SELECT * FROM ExhibitionOperatorEvent;
++----------------+--------------+----------------+
+| OperatorName   | EventName    | ExhibitionName |
++----------------+--------------+----------------+
+| aut            | asperiores   | repellat       |
+| aut            | asperiores   | minus          |
+| aut            | asperiores   | quasi          |
+| aut            | asperiores   | qui            |
+| aut            | asperiores   | laudantium     |
+| aut            | laboriosam   | earum          |
+| aut            | laboriosam   | explicabo      |
+| aut            | laboriosam   | sint           |
+| aut            | laboriosam   | assumenda      |
+| aut            | laborum      | optio          |
+| aut            | laborum      | impedit        |
+| aut            | laborum      | tempore        |
+| aut            | laborum      | repudiandae    |
+| aut            | laborum      | aut            |
+| aut            | pariatur     | sit            |
+| aut            | pariatur     | dolor          |
+| aut            | pariatur     | voluptatem     |
+| aut            | porro        | praesentium    |
+| aut            | porro        | voluptas       |
+| aut            | possimus     | est            |
+| aut            | voluptate    | numquam        |
+| aut            | voluptate    | et             |
+| aut            | voluptate    | architecto     |
+| aut            | voluptate    | quis           |
+| aut            | voluptate    | at             |
+| aut            | voluptate    | laboriosam     |
+| doloribus      | asperiores   | autem          |
+| doloribus      | asperiores   | et             |
+| doloribus      | asperiores   | sit            |
+| doloribus      | asperiores   | officiis       |
+| doloribus      | asperiores   | animi          |
+| doloribus      | asperiores   | iste           |
+| doloribus      | laboriosam   | modi           |
+| doloribus      | laborum      | delectus       |
+| doloribus      | laborum      | consequatur    |
+| doloribus      | neque        | est            |
+| doloribus      | pariatur     | incidunt       |
+| doloribus      | pariatur     | ut             |
+| doloribus      | pariatur     | culpa          |
+| doloribus      | porro        | at             |
+| doloribus      | possimus     | et             |
+| doloribus      | voluptate    | aut            |
+| doloribus      | voluptate    | expedita       |
+| eos            | asperiores   | saepe          |
+| eos            | laboriosam   | sed            |
+| eos            | laborum      | cumque         |
+| eos            | neque        | quia           |
+| eos            | neque        | qui            |
+| eos            | pariatur     | sint           |
+| eos            | porro        | cupiditate     |
+| excepturi      | asperiores   | ipsum          |
+| excepturi      | asperiores   | laborum        |
+| excepturi      | asperiores   | architecto     |
+| excepturi      | laboriosam   | ut             |
+| excepturi      | laborum      | consectetur    |
+| excepturi      | laborum      | deserunt       |
+| excepturi      | neque        | enim           |
+| excepturi      | neque        | reprehenderit  |
+| excepturi      | pariatur     | excepturi      |
+| excepturi      | possimus     | non            |
+| excepturi      | possimus     | dicta          |
+| excepturi      | possimus     | cum            |
+| excepturi      | voluptate    | quia           |
+| excepturi      | voluptate    | nisi           |
+| excepturi      | voluptate    | aperiam        |
+| exercitationem | asperiores   | eum            |
+| exercitationem | consequuntur | natus          |
+| exercitationem | pariatur     | qui            |
+| exercitationem | possimus     | ipsa           |
+| exercitationem | possimus     | velit          |
+| possimus       | asperiores   | excepturi      |
+| possimus       | asperiores   | blanditiis     |
+| possimus       | asperiores   | corrupti       |
+| possimus       | laborum      | inventore      |
+| possimus       | laborum      | rerum          |
+| possimus       | pariatur     | possimus       |
+| possimus       | pariatur     | doloremque     |
+| possimus       | porro        | animi          |
+| possimus       | voluptate    | autem          |
+| vero           | asperiores   | cum            |
+| vero           | consequuntur | aut            |
+| vero           | laboriosam   | ipsa           |
+| vero           | laborum      | non            |
+| vero           | laborum      | qui            |
+| vero           | laborum      | beatae         |
+| vero           | pariatur     | iste           |
+| vero           | porro        | dolore         |
+| vero           | voluptate    | fuga           |
+| voluptatem     | asperiores   | unde           |
+| voluptatem     | asperiores   | eos            |
+| voluptatem     | laborum      | non            |
+| voluptatem     | laborum      | distinctio     |
+| voluptatem     | laborum      | repudiandae    |
+| voluptatem     | neque        | non            |
+| voluptatem     | pariatur     | mollitia       |
+| voluptatem     | porro        | odio           |
+| voluptatem     | possimus     | voluptas       |
+| voluptatem     | voluptate    | officiis       |
+| voluptatem     | voluptate    | quia           |
+| voluptatem     | voluptate    | voluptas       |
++----------------+--------------+----------------+
+100 rows in set (0,00 sec)
+
+mysql> CREATE VIEW ExhibitionRegistrationClient AS
+    -> SELECT registration.date_registration AS DateRegistration,exhibition.exhibition_name AS ExhibitionName,client.name_exponent AS ClientName
+    -> FROM registration
+    -> INNER JOIN exhibition ON registration.id_exhibition=exhibition.id_exhibition
+    -> INNER JOIN client ON registration.id_client=client.id_client
+    -> ORDER BY exhibition.exhibition_name,registration.date_registration;
+Query OK, 0 rows affected (0,01 sec)
+
+mysql> SELECT * FROM ExhibitionRegistrationClient;
++------------------+----------------+------------+
+| DateRegistration | ExhibitionName | ClientName |
++------------------+----------------+------------+
+| 1979-12-16       | animi          | nam        |
+| 2002-05-03       | animi          | fugiat     |
+| 2013-04-11       | animi          | minus      |
+| 2014-08-12       | animi          | fugiat     |
+| 2015-01-15       | aut            | dolore     |
+| 1972-04-16       | laboriosam     | minus      |
+| 1990-04-11       | laboriosam     | qui        |
+| 1991-05-17       | laboriosam     | nam        |
+| 2001-08-06       | laboriosam     | fugiat     |
+| 1974-02-06       | quasi          | nam        |
+| 1994-02-15       | quasi          | nam        |
+| 1994-12-24       | quasi          | fugiat     |
+| 2020-10-16       | quasi          | autem      |
+| 1977-02-12       | reprehenderit  | fugiat     |
+| 1977-10-31       | reprehenderit  | minus      |
+| 1985-09-15       | reprehenderit  | fugiat     |
+| 1987-07-24       | reprehenderit  | quia       |
+| 1977-04-24       | sint           | autem      |
+| 1995-07-05       | sint           | qui        |
+| 2010-08-24       | voluptas       | dolore     |
++------------------+----------------+------------+
+20 rows in set (0,00 sec)
+
+mysql> SELECT id_exhibition AS exhibition,count(*) AS client
+    -> FROM invitation
+    -> GROUP BY id_exhibition;
++------------+--------+
+| exhibition | client |
++------------+--------+
+|          1 |     12 |
+|          2 |     10 |
+|          3 |     12 |
+|          4 |      9 |
+|          5 |      7 |
+|          6 |     10 |
+|          7 |     10 |
+|          8 |     18 |
+|          9 |     12 |
++------------+--------+
+9 rows in set (0,00 sec)
+
+mysql> SELECT name_exponent AS client
+    -> FROM client
+    -> WHERE id_bank IN (SELECT id_bank FROM bank WHERE account_number='576927276')
+    -> ORDER BY name_exponent;
++--------+
+| client |
++--------+
+| animi  |
+| error  |
+| ex     |
+| harum  |
+| in     |
+| iusto  |
+| quia   |
+| vel    |
+| veniam |
++--------+
+9 rows in set (0,00 sec)
+
+mysql> SELECT exhibition_operator.id_exhibition_operator, COUNT(exhibition.id_exhibition)
+    -> FROM exhibition_operator
+    -> JOIN exhibition
+    -> ON exhibition_operator.id_exhibition_operator=exhibition.id_exhibition_operator
+    -> GROUP BY exhibition_operator.id_exhibition_operator
+    -> ORDER BY exhibition_operator.id_exhibition_operator;
++------------------------+---------------------------------+
+| id_exhibition_operator | COUNT(exhibition.id_exhibition) |
++------------------------+---------------------------------+
+|                      1 |                               5 |
+|                      2 |                              15 |
+|                      3 |                              17 |
+|                      4 |                              10 |
+|                      5 |                              12 |
+|                      6 |                               7 |
+|                      7 |                               9 |
+|                      8 |                               9 |
+|                      9 |                              16 |
++------------------------+---------------------------------+
+9 rows in set (0,00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER `trigger` BEFORE INSERT ON `client`
+    -> FOR EACH ROW
+    -> BEGIN
+    -> SET NEW.name = LEFT(NEW.name,1);
+    -> SET NEW.middle_name = LEFT(NEW.surname,1);
+    -> END//
+Query OK, 0 rows affected (0,01 sec)
